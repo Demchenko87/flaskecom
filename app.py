@@ -1,6 +1,4 @@
-import random
-
-from flask import Flask, render_template, redirect, url_for, session
+from flask import Flask, flash, render_template, redirect, url_for, session
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_uploads import UploadSet, configure_uploads, IMAGES
@@ -13,7 +11,6 @@ app = Flask(__name__)
 photos = UploadSet('photos', IMAGES)
 
 app.config['UPLOADED_PHOTOS_DEST'] = 'static/images'
-# app.config["UPLOADED_PHOTOS_DEST"] = "static/img"
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///trendy.db"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['DEBUG'] = True
@@ -90,30 +87,23 @@ def handle_cart():
     grand_total = 0
     shipping = 30
     index = 0
-    count_cart = 0
     quatity_total = 0
-
     for item in session['cart']:
         product = Product.query.filter_by(id=item['id']).first()
         quantity = int(item['quantity'])
-        count_cart += quantity
         quatity_total += quantity
         total = quantity * product.price
         grand_total += total
         products.append({'id': product.id, 'name': product.name, 'price':  product.price, 'image': product.image, 'quantity': quantity, 'total': total, 'index': index})
         index += 1
     grand_total_plus_shipping = grand_total + shipping
-    return products, grand_total, grand_total_plus_shipping, shipping, count_cart, quatity_total
+    return products, grand_total, grand_total_plus_shipping, shipping, quatity_total
 
 @app.route('/')
 def index():
-
+    # session['cart'] = []
     products = Product.query.all()
-    count_cart = 0
-    for item in session['cart']:
-        quantity = int(item['quantity'])
-        count_cart += quantity
-
+    count_cart = check_count()
     return render_template('index.html', products=products, count_cart=count_cart)
 
 @app.route('/product/<id>')
@@ -121,10 +111,7 @@ def product(id):
     product = Product.query.filter_by(id=id).first()
     form = AddToCart()
 
-    count_cart = 0
-    for item in session['cart']:
-        quantity = int(item['quantity'])
-        count_cart += quantity
+    count_cart = check_count()
 
     return render_template('view-product.html', product=product, form=form, count_cart=count_cart)
 
@@ -151,8 +138,11 @@ def add_to_cart():
 
 @app.route('/cart')
 def cart():
-    products, grand_total, grand_total_plus_shipping, shipping, count_cart, quatity_total = handle_cart()
-    return render_template('cart.html', products=products, shipping=shipping, grand_total=grand_total, grand_total_plus_shipping=grand_total_plus_shipping, count_cart=count_cart, quatity_total=quatity_total)
+    count_cart = check_count()
+
+
+    products, grand_total, grand_total_plus_shipping, shipping, quatity_total = handle_cart()
+    return render_template('cart.html', count_cart=count_cart, products=products, shipping=shipping, grand_total=grand_total, grand_total_plus_shipping=grand_total_plus_shipping, quatity_total=quatity_total)
 
 @app.route('/remove-from-cart/<index>')
 def remove_form_cart(index):
@@ -162,10 +152,10 @@ def remove_form_cart(index):
 
 @app.route('/checkout', methods=['GET', 'POST'])
 def checkout():
-
-
     form = Checkout()
-    products, grand_total, grand_total_plus_shipping, shipping, count_cart, quatity_total = handle_cart()
+    products, grand_total, grand_total_plus_shipping, shipping, quatity_total = handle_cart()
+    count_cart = check_count()
+
 
     if form.validate_on_submit():
 
@@ -194,7 +184,23 @@ def admin():
     products_in_stock = Product.query.filter(Product.stock > 0).count()
     orders = Order.query.all()
 
-    return render_template('admin/index.html', admin=True, products=products, products_in_stock=products_in_stock, orders=orders)
+    count_cart = check_count()
+    return render_template('admin/index.html', admin=True, count_cart=count_cart, products=products, products_in_stock=products_in_stock, orders=orders)
+
+
+@app.route('/admin/delete/<int:id>', methods=['GET'])
+def remove_product(id):
+    event = Product.query.filter_by(id=id).first()
+    db.session.delete(event)
+    db.session.commit()
+    return redirect(url_for('admin'))
+
+@app.route('/admin/delete_order/<int:id>', methods=['GET'])
+def remove_order(id):
+    event = Order.query.filter_by(id=id).first()
+    db.session.delete(event)
+    db.session.commit()
+    return redirect(url_for('admin'))
 
 @app.route('/admin/add', methods=['GET', 'POST'])
 def add():
@@ -219,7 +225,15 @@ def order(order_id):
     shipping = 30
     return render_template('admin/view-order.html', order=order, shipping=shipping, admin=True)
 
-
+def check_count():
+    count_cart = 0
+    if 'cart' in session:
+        for item in session['cart']:
+            quantity = int(item['quantity'])
+            count_cart += quantity
+    else:
+        count_cart = 0
+    return count_cart
 
 if __name__ == '__main__':
     app.run()

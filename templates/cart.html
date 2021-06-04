@@ -6,7 +6,7 @@
 <div class="row">
 	<div class="col-lg-8">
 		<h3 class="bold">
-			<i class="glyphicon glyphicon-shopping-cart"></i> Your Shopping Cart
+			<i class="glyphicon glyphicon-shopping-cart"></i> Ваша корзина
 		</h3>
 
 		<div class="panel panel-primary">
@@ -21,8 +21,9 @@
 						</div>
 					</div>
 					<div class="col-lg-4">
-                        <a href="{{url_for('product', id=product.id)}}"><h3 class="bold">{{ product['name'] }}</h3></a>
-						<p>&dollar;{{ product['price'] }}</p>
+                        <h3>Название</h3>
+                        <a href="{{url_for('product', id=product.id)}}"><h4 class="bold">{{ product['name'] }}</h4></a>
+						<p>{{ product['price'] }} грн.</p>
 						<br />
 						<p>
 
@@ -31,16 +32,16 @@
 						</p>
 					</div>
 					<div class="col-lg-2">
-						<h3>Quantity</h3>
+						<h3>Кол.</h3>
 						<p>
 
 							{{ product['quantity'] }}
 						</p>
 					</div>
 					<div class="col-lg-2">
-						<h3>Total</h3>
+						<h3>Сумма</h3>
 						<p>
-							<strong>&dollar;{{ product['total'] }}</strong>
+							<strong>{{ product['total'] }} грн.</strong>
 						</p>
 					</div>
 				</div>

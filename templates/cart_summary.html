@@ -1,32 +1,32 @@
 
 		<h3 class="bold">
-			<i class="glyphicon glyphicon-th-list"></i> Cart Summary
+			<i class="glyphicon glyphicon-th-list"></i> Ваш заказ
 		</h3>
 
 		<div class="panel panel-primary">
 			<div class="panel-body">
-				Current Cart Value
+				Текущая стоимость
 			</div>
 			<ul class="list-group">
 				<li class="list-group-item">
 					<p>
-                        {{ quatity_total }} Items <strong class="pull-right">&dollar;{{ grand_total }}</strong>
+                        {{ quatity_total }} тов. <strong class="pull-right">{{ grand_total }} грн.</strong>
 					</p>
 					<p>
-						24hr Shipping <strong class="pull-right">&dollar;{{ shipping }}</strong>
+						Доставка <strong class="pull-right">{{ shipping }} грн.</strong>
 					</p>
 				</li>
 				<li class="list-group-item">
-					<p>Total <strong class="pull-right">&dollar;{{ grand_total_plus_shipping }}</strong></p>
+					<p>Сумма: <strong class="pull-right">{{ grand_total_plus_shipping }} грн.</strong></p>
 
 				</li>
 			</ul>
 			<div class="panel-footer">
 				<a href="{{ url_for('checkout') }}" class="btn btn-primary btn-sm">
-					Checkout <i class="glyphicon glyphicon-chevron-right"></i>
+					Оформить заказ <i class="glyphicon glyphicon-chevron-right"></i>
 				</a>
 				<a href="{{ url_for('index') }}" class="btn btn-link btn-sm pull-right">
-					<i class="glyphicon glyphicon-chevron-left"></i> Continue Shopping
+					<i class="glyphicon glyphicon-chevron-left"></i> Продолжить покупки
 				</a>
 			</div>
 		</div>

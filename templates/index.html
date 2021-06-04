@@ -9,6 +9,9 @@
 			<ol class="carousel-indicators">
 				<li data-target="#carousel-id" data-slide-to="0" class=""></li>
 				<li data-target="#carousel-id" data-slide-to="1" class=""></li>
+                <li data-target="#carousel-id" data-slide-to="2" class=""></li>
+
+
 			</ol>
 			<div class="carousel-inner">
 				<div class="item active" style="height: 300px;">
@@ -33,6 +36,18 @@
 						</div>
 					</div>
 				</div>
+                <div class="item" style="height: 300px;">
+					<img alt="Second slide" src="{{ url_for('static', filename='imgs/3.jpg') }}" style="width: 100%;">
+					<div class="container">
+						<div class="carousel-caption">
+							<h1>Amazing Autumn Wears</h1>
+							<p>
+								Get the most trendy outfits to go with the season
+							</p>
+						</div>
+					</div>
+				</div>
+
 			</div>
 			<a class="left carousel-control" href="#carousel-id" data-slide="prev"><span class="glyphicon glyphicon-chevron-left"></span></a>
 			<a class="right carousel-control" href="#carousel-id" data-slide="next"><span class="glyphicon glyphicon-chevron-right"></span></a>
@@ -46,7 +61,7 @@
 	<div class="col-lg-12">
 		<div class="panel panel-default">
 			<div class="panel-body">
-				<h4 class="text-center pageTitle">Available Products</h4>
+				<h4 class="text-center pageTitle">Добро пожаловать в наш интернет-магазин</h4>
 			</div>
 		</div>
 	</div>
@@ -54,7 +69,7 @@
 
 <div class="row">
 	{% for product in products %}
-    <div class="col-lg-3">
+    <div class="col-lg-4" style="height: 630px;">
 		<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 			<div class="thumbnail">
 				<a href="{{url_for('product', id=product.id)}}">
@@ -66,15 +81,15 @@
 					<p>
 						{{ product.description }}
 					</p>
-                <h5 class="bold">${{ product.price }}</h5>
+                <h5 class="bold">{{ product.price }} грн.</h5>
 					<hr />
 					<p>
 						<a href="{{url_for('product', id=product.id)}}" class="btn btn-primary btn-sm">
-							<i class="glyphicon glyphicon-eye-open"></i> View
+							<i class="glyphicon glyphicon-eye-open"></i> Подробнее
 						</a>
                         {% if product.stock > 0 %}
 						<a href="{{ url_for('quick_add', id=product.id) }}" class="btn btn-default btn-sm">
-							<i class="glyphicon glyphicon-shopping-cart"></i> Add To Cart
+							<i class="glyphicon glyphicon-shopping-cart"></i> Купить +
 						</a>
                         {% endif %}
 					</p>
@@ -90,10 +105,17 @@
 <div class="row pad">
 	<div class="col-lg-12">
 		<div class="panel panel-default">
-			<div class="panel-body text-center">
-				<p>"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."</p>
-			</div>
+			<div class="panel-body text-justify">
+                <h3 class="text-center ">Кактусы от Украфлора</h3>
+                <br>
+            <p>
+
+
+Интернет-магазин предлагает большое количество разнообразных растений на любой вкус для вашего декора и подарков, среди которых вы имеете возможность купить кактусы и суккуленты с доставкой в широком ассортименте. Эти два вида растения имеют целый ряд схожих характеристик, однако их внешний вид и свойства во многом отличаются. Главной объединяющей чертой кактусов и суккулентов, родиной которых чаще всего оказываются засушливые регионы, считают их неимоверную харизму. Экзотический и причудливый вид этих растений дарит каждому интерьеру особенную атмосферу, поэтому их так часто выбирают для украшения дома и офиса.
+            </p>
+            </div>
 		</div>
 	</div>
+</div>
 </div>
 {% endblock %}
