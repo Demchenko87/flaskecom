@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Home | Trendy Fashion Store{% endblock %}
+{% block title %}Главная | Магазин кактусов{% endblock %}
 
 {% block body %}
 <div class="row">
@@ -69,9 +69,9 @@
 
 <div class="row">
 	{% for product in products %}
-    <div class="col-lg-4" style="height: 630px;">
-		<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-			<div class="thumbnail">
+    <div class="col-lg-4" >
+		<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" >
+			<div class="thumbnail" style="height: 630px;">
 				<a href="{{url_for('product', id=product.id)}}">
 					<img src="{{ url_for('static', filename=product.image) }}" alt="">
 
@@ -84,13 +84,14 @@
                 <h5 class="bold">{{ product.price }} грн.</h5>
 					<hr />
 					<p>
-						<a href="{{url_for('product', id=product.id)}}" class="btn btn-primary btn-sm">
+						<a href="{{url_for('product', id=product.id)}}" class="btn btn-info btn-sm">
 							<i class="glyphicon glyphicon-eye-open"></i> Подробнее
 						</a>
                         {% if product.stock > 0 %}
-						<a href="{{ url_for('quick_add', id=product.id) }}" class="btn btn-default btn-sm">
-							<i class="glyphicon glyphicon-shopping-cart"></i> Купить +
-						</a>
+                            <button class="btn btn-primary btn-buy" id="{{ product.id }}">Купить</button>
+{#						<a href="{{ url_for('quick_add', id=product.id) }}" class="btn btn-success btn-sm" id="{{ product.id }}">#}
+{#							<i class="glyphicon glyphicon-shopping-cart"></i> Купить +#}
+{#						</a>#}
                         {% endif %}
 					</p>
 				</div>

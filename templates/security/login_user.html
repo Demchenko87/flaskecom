@@ -1,12 +1,20 @@
-{% from "security/_macros.html" import render_field_with_errors, render_field %}
+{% extends 'base.html' %}
+{% block title %} Вход в админ панель {% endblock %}
+{% block body %}
+    <div class="row">
+    <div class="col-lg-6 col-md-offset-3">
+    {% from "security/_macros.html" import render_field_with_errors, render_field %}
 {% include "security/_messages.html" %}
-<h1>{{ _('Login') }}</h1>
+<h2>Войти в admin панель</h2>
 <form action="{{ url_for_security('login') }}" method="POST" name="login_user_form">
   {{ login_user_form.hidden_tag() }}
-  {{ render_field_with_errors(login_user_form.email) }}
-  {{ render_field_with_errors(login_user_form.password) }}
-  {{ render_field_with_errors(login_user_form.remember) }}
-  {{ render_field(login_user_form.next) }}
-  {{ render_field(login_user_form.submit) }}
+  {{ render_field_with_errors(login_user_form.email, class='form-control') }}
+  {{ render_field_with_errors(login_user_form.password, class='form-control') }}
+
+  {{ render_field(login_user_form.next, class='form-control') }}
+  {{ render_field(login_user_form.submit, class='btn btn-success', value='Войти') }}
 </form>
 {% include "security/_menu.html" %}
+</div>
+    </div>
+{% endblock %}

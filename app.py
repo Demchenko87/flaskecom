@@ -1,4 +1,5 @@
-from flask import Flask, flash, render_template, redirect, url_for, session
+from flask import Flask, flash, render_template, redirect, url_for, session, request, jsonify
+from flask_security import UserMixin, RoleMixin, SQLAlchemyUserDatastore, Security, login_required
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_uploads import UploadSet, configure_uploads, IMAGES
@@ -6,6 +7,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, IntegerField, TextAreaField, HiddenField, SelectField
 from flask_wtf.file import FileField, FileAllowed
 import random
+import email_validator
 app = Flask(__name__)
 
 photos = UploadSet('photos', IMAGES)
@@ -15,6 +17,10 @@ app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///trendy.db"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['DEBUG'] = True
 app.config['SECRET_KEY'] = 'mysecret'
+# -- security
+app.config['SECURITY_PASSWORD_SALT'] = 'salt'
+app.config['SECURITY_PASSWORD_HASH'] = 'sha512_crypt'
+
 
 configure_uploads(app, photos)
 
@@ -24,7 +30,7 @@ migrate = Migrate(app, db)
 class Product(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), unique=True)
-    price = db.Column(db.Integer) #in cents
+    price = db.Column(db.Integer)
     stock = db.Column(db.Integer)
     description = db.Column(db.String(500))
     image = db.Column(db.String(100))
@@ -81,6 +87,28 @@ class Checkout(FlaskForm):
     payment_type = SelectField('Payment Type', choices=[('VI', 'VISA'), ('MA', 'MasteCard'), ('PA', 'PayPal')])
     items = db.relationship('Order_Item', backref='order', lazy=True)
 
+# ---- Flask Security
+roles_users = db.Table('roles_users', db.Column('user_id', db.Integer(), db.ForeignKey('user.id')),
+                       db.Column('role_id', db.Integer(), db.ForeignKey('role.id'))
+                       )
+
+class User(db.Model, UserMixin):
+    id = db.Column(db.Integer(), primary_key=True)
+    email = db.Column(db.String(100), unique=True)
+    password = db.Column(db.String(255))
+    active = db.Column(db.Boolean())
+    roles = db.relationship('Role', secondary=roles_users, backref=db.backref('users', lazy='dynamic'))
+
+class Role(db.Model, RoleMixin):
+    id = db.Column(db.Integer(), primary_key=True)
+    name = db.Column(db.String(100), unique=True)
+    description = db.Column(db.String(255))
+
+user_datastore = SQLAlchemyUserDatastore(db, User, Role)
+security = Security(app, user_datastore)
+
+
+
 
 def handle_cart():
     products = []
@@ -115,13 +143,28 @@ def product(id):
 
     return render_template('view-product.html', product=product, form=form, count_cart=count_cart)
 
-@app.route('/quick-add/<id>')
-def quick_add(id):
+# @app.route('/quick-add/<id>')
+# def quick_add(id):
+#     if 'cart' not in session:
+#         session['cart'] = []
+#     session['cart'].append({'id': id, 'quantity': 1})
+#     session.modified = True
+#     return redirect(url_for('index'))
+
+#----json add
+@app.route('/quick-add-json', methods=['POST'])
+def quick_add():
+    id = request.form['id_tov']
     if 'cart' not in session:
         session['cart'] = []
     session['cart'].append({'id': id, 'quantity': 1})
     session.modified = True
-    return redirect(url_for('index'))
+    print(session['cart'])
+    count = 0
+    for i in session['cart']:
+        count += 1
+    return jsonify({'id': id, 'count': count})
+
 
 @app.route('/add-to-cart', methods=['POST'])
 def add_to_cart():
@@ -179,6 +222,7 @@ def checkout():
     return render_template('checkout.html', form=form, products=products, shipping=shipping, grand_total=grand_total, grand_total_plus_shipping=grand_total_plus_shipping, count_cart=count_cart, quatity_total=quatity_total)
 
 @app.route('/admin')
+@login_required
 def admin():
     products = Product.query.all()
     products_in_stock = Product.query.filter(Product.stock > 0).count()
@@ -189,6 +233,7 @@ def admin():
 
 
 @app.route('/admin/delete/<int:id>', methods=['GET'])
+@login_required
 def remove_product(id):
     event = Product.query.filter_by(id=id).first()
     db.session.delete(event)
@@ -196,6 +241,7 @@ def remove_product(id):
     return redirect(url_for('admin'))
 
 @app.route('/admin/delete_order/<int:id>', methods=['GET'])
+@login_required
 def remove_order(id):
     event = Order.query.filter_by(id=id).first()
     db.session.delete(event)
@@ -203,6 +249,7 @@ def remove_order(id):
     return redirect(url_for('admin'))
 
 @app.route('/admin/add', methods=['GET', 'POST'])
+@login_required
 def add():
     form = AddProduct()
 
@@ -220,6 +267,7 @@ def add():
     return render_template('admin/add-product.html', admin=True, form=form)
 
 @app.route('/admin/order/<order_id>')
+@login_required
 def order(order_id):
     order = Order.query.filter_by(id=int(order_id)).first()
     shipping = 30

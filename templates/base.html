@@ -5,10 +5,12 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>{% block title %}{% endblock %}</title>
-
+        <link href="{{ url_for('static', filename='imgs/fav.png') }}" rel="shortcut icon" type="image/x-icon" />
         <!-- Bootstrap CSS -->
+
         <link rel="stylesheet" href="{{ url_for('static', filename='bs/css/flatly.min.css') }}" />
         <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}" />
+
     </head>
     <body>
         {% if admin %}
@@ -38,7 +40,13 @@
                             <a href="{{ url_for('index') }}" target="_blank"><i class="glyphicon glyphicon-chevron-left"></i> Показать сайт</a>
                         </li>
                     </ul>
+                    <ul class="nav navbar-nav" style="float: right;">
+                        <li class="active">
+                            <a href="/logout"><i class="glyphicon glyphicon-log-out"></i> Выйти</a>
+                          </li>
+                      </ul>
                 </div>
+
             </div>
         </nav>
         {% else %}
@@ -53,17 +61,49 @@
                     </button>
                     <a class="navbar-brand" href="{{url_for('index')}}"><img src="{{ url_for('static', filename='imgs/logo.png') }}" alt="logo" width="120"></a>
                 </div>
-        
+
+
                 <div class="collapse navbar-collapse navbar-ex1-collapse">
                     <ul class="nav navbar-nav navbar-right">
                         <li class="active">
                             <a href="{{ url_for('cart') }}">
-                                <i class="glyphicon glyphicon-shopping-cart"></i> ({{ count_cart }})
+
+                                <i class="glyphicon glyphicon-shopping-cart"></i> (<span id="successAlert">{{ count_cart }}</span>)
                             </a>
                         </li>
                     </ul>
+<form class="navbar-form navbar-right" role="search">
+        <div class="form-group">
+          <input type="text" class="form-control"  placeholder="Поиск по сайту">
+        </div>
+
+        <button type="submit" class="btn btn-warning">Найти</button>
+
+      </form>
+      <ul class="nav navbar-nav navbar-left">
+        <li><a href="#">Главная</a></li>
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown">Каталог <b class="caret"></b></a>
+          <ul class="dropdown-menu">
+            <li><a href="#">Позиция 1</a></li>
+            <li><a href="#">Позиция 2</a></li>
+            <li><a href="#">Позиция 3</a></li>
+          </ul>
+        </li>
+          <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown">Оплата и доставка <b class="caret"></b></a>
+          <ul class="dropdown-menu">
+            <li><a href="#">Оплата</a></li>
+            <li><a href="#">Доставка</a></li>
+            <li class="divider"></li>
+            <li><a href="#">Реквизиты</a></li>
+          </ul>
+        </li>
+          <li><a href="#">Контакты</a></li>
+      </ul>
                 </div><!-- /.navbar-collapse -->
             </div>
+
         </nav>
         {% endif %}
 
@@ -84,6 +124,20 @@
         <script src="{{ url_for('static', filename='bs/js/jquery.min.js') }}"></script>
         <!-- Bootstrap JavaScript -->
         <script src="{{ url_for('static', filename='bs/js/bootstrap.min.js') }}"></script>
+    <script>
+    $('.btn-buy').click(function () {//клип на кнопку
+        var id = $(this).attr('id'); //получаем id этой кнопки
+        var count = 1
+            $.ajax({//передаем ajax-запросом данные
+            type: "POST", //метод передачи данных
+            url: '/quick-add-json',//php-файл для обработки данных
+            data: {id_tov: id},//передаем наши данные
+            success: function(data) {
+                $('#successAlert').text(data.count).show();
 
+                }
+            });
+    });
+</script>
     </body>
 </html>
