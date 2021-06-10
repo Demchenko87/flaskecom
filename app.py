@@ -20,8 +20,6 @@ app.config['SECRET_KEY'] = 'mysecret'
 # -- security
 app.config['SECURITY_PASSWORD_SALT'] = 'salt'
 app.config['SECURITY_PASSWORD_HASH'] = 'sha512_crypt'
-
-
 configure_uploads(app, photos)
 
 db = SQLAlchemy(app)
@@ -34,7 +32,6 @@ class Product(db.Model):
     stock = db.Column(db.Integer)
     description = db.Column(db.String(500))
     image = db.Column(db.String(100))
-
     order = db.relationship('Order_Item', backref='product', lazy=True)
 
 class Order(db.Model):
@@ -108,8 +105,6 @@ user_datastore = SQLAlchemyUserDatastore(db, User, Role)
 security = Security(app, user_datastore)
 
 
-
-
 def handle_cart():
     products = []
     grand_total = 0
@@ -133,6 +128,17 @@ def index():
     products = Product.query.all()
     count_cart = check_count()
     return render_template('index.html', products=products, count_cart=count_cart)
+
+@app.route('/search', methods=['GET', 'POST'])
+def search():
+    count_cart = check_count()
+    search = request.args.get('search')
+    if search:
+        products = Product.query.filter(Product.name.contains(search) | Product.description.contains(search))
+    else:
+        products = Product.query.all()
+
+    return render_template('search.html', products=products, count_cart=count_cart)
 
 @app.route('/product/<id>')
 def product(id):
@@ -282,6 +288,8 @@ def check_count():
     else:
         count_cart = 0
     return count_cart
+
+
 
 if __name__ == '__main__':
     app.run()
