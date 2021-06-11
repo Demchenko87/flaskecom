@@ -9,6 +9,11 @@
         <!-- Bootstrap CSS -->
         <link rel="stylesheet" href="{{ url_for('static', filename='bs/css/flatly.min.css') }}" />
         <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}" />
+        <link rel="stylesheet" href="https://cdn.datatables.net/1.10.25/css/jquery.dataTables.min.css">
+        <link rel="stylesheet" href="https://cdn.datatables.net/buttons/1.7.1/css/buttons.dataTables.min.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.css">
+
 
     </head>
     <body>
@@ -124,8 +129,9 @@
         </div>
 
         <!-- jQuery -->
-        <script src="{{ url_for('static', filename='bs/js/jquery.min.js') }}"></script>
-        <!-- Bootstrap JavaScript -->
+
+<script src="{{ url_for('static', filename='bs/js/jquery.min.js') }}"></script>
+{#        <!-- Bootstrap JavaScript -->#}
         <script src="{{ url_for('static', filename='bs/js/bootstrap.min.js') }}"></script>
     <script>
     $('.btn-buy').click(function () {//клип на кнопку
@@ -148,6 +154,42 @@
         });
     </script>
 
+        <script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.24/js/dataTables.bootstrap4.min.js"></script>
+        <script src="https://cdn.datatables.net/buttons/1.7.1/js/dataTables.buttons.min.js"></script>
+          <script src="https://cdn.datatables.net/buttons/1.7.1/js/buttons.html5.min.js"></script>
+
+          <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js"></script>
+
+<script>
+    $(document).ready(function() {
+    $('#example').DataTable({
+         "language": {
+                "search": "Поисковый фильтр:",
+                 "info": "Показано с _START_ по _END_ з _TOTAL_ записей",
+                 "paginate": {
+                         "previous": "Назад",
+                         "next": "Вперед",
+                 }
+
+              },
+              "oLanguage": {
+                  "sLengthMenu": "Показывать _MENU_ записей",
+                },
+
+            "aaSorting": [[ 0, "desc" ]],
+                "lengthMenu": [ 50, 75, 100 ]
+    });
+
+} );
+</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/hideseek/0.8.0/jquery.hideseek.min.js" integrity="sha512-C+RpJPUPkaVe8twNayXS5KZDWZwFhFyVKOd2PqDFjStsvU2CWRVru1wDc353bhb/3tmfy9pXJAdMS/aq1xb+Kw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+<script>
+  $(function(){
+       $("a[rel=fancy]").fancybox({'transitionIn': 'none','transitionOut': 'none', 'nextEffect': 'none', 'prevEffect': 'none'});
+  });
+</script>
+
     </body>
 </html>

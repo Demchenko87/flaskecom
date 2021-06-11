@@ -1,3 +1,5 @@
+import os
+
 from flask import Flask, flash, render_template, redirect, url_for, session, request, jsonify
 from flask_security import UserMixin, RoleMixin, SQLAlchemyUserDatastore, Security, login_required
 from flask_sqlalchemy import SQLAlchemy
@@ -79,9 +81,9 @@ class Checkout(FlaskForm):
     email = StringField('Email')
     address = StringField('Address')
     city = StringField('City')
-    state = SelectField('State', choices=[('CA', 'California'), ('WA', 'Washington'), ('NV', 'Nevada')])
-    country = SelectField('Country', choices=[('US', 'United States'), ('UK', 'United Kindom'), ('FRA', 'France')])
-    payment_type = SelectField('Payment Type', choices=[('VI', 'VISA'), ('MA', 'MasteCard'), ('PA', 'PayPal')])
+    delivery = SelectField('Delivery', choices=[('Самовывоз', 'Самовывоз'),('Новая почта', 'Новая почта'), ('Укрпочта', 'Укрпочта'), ('Мист Экспресс', 'Мист Экспресс'), ('Интайм', 'Интайм'), ('Деливери', 'Деливери'), ('Автолюкс', 'Автолюкс'), ('Zruchna', 'Zruchna'), ('Делфаст', 'Делфаст')])
+    branch = StringField('Branch')
+    payment_type = SelectField('Payment Type', choices=[('Картой', 'Картой'), ('Наличными при получении', 'Наличными при получении'), ('Наложенный платеж', 'Наложенный платеж')])
     items = db.relationship('Order_Item', backref='order', lazy=True)
 
 # ---- Flask Security
@@ -211,7 +213,7 @@ def checkout():
         order = Order()
         form.populate_obj(order)
         order.reference = ''.join([random.choice('ABCDE') for _ in range(5)])
-        order.status = 'PENDING'
+        order.status = 'Новый заказ'
         for product in products:
             order_item = Order_Item(quantity=product['quantity'], product_id=product['id'])
             order.items.append(order_item)
@@ -246,6 +248,32 @@ def remove_product(id):
     db.session.commit()
     return redirect(url_for('admin'))
 
+@app.route('/admin/edit/<int:id>', methods=['POST', 'GET'])
+@login_required
+def edit_product(id):
+    product = Product.query.get(id)
+    if request.method == 'POST':
+        product.name = request.form['name']
+        product.price = request.form['price']
+        product.stock = request.form['stock']
+        product.description = request.form['description']
+        if request.files['image'].filename == '':
+            pass
+        else:
+            image_url_main = photos.save(request.files["image"])
+            product.image = 'images/' + image_url_main
+        try:
+            db.session.commit()
+            return redirect('/admin')
+        except:
+            return "При редактировании произошла ошибка"
+    else:
+        return render_template('admin/edit-product.html', product=product, admin=True)
+
+
+
+
+
 @app.route('/admin/delete_order/<int:id>', methods=['GET'])
 @login_required
 def remove_order(id):
@@ -262,7 +290,6 @@ def add():
     if form.validate_on_submit():
         image_url_main = photos.save(form.image.data)
         image_url = 'images/' + image_url_main
-        print(image_url)
         new_product = Product(name=form.name.data, price=form.price.data, stock=form.stock.data, description=form.description.data, image=image_url)
 
         db.session.add(new_product)
@@ -272,12 +299,17 @@ def add():
 
     return render_template('admin/add-product.html', admin=True, form=form)
 
-@app.route('/admin/order/<order_id>')
+@app.route('/admin/order/<order_id>', methods=['GET', 'POST'])
 @login_required
 def order(order_id):
-    order = Order.query.filter_by(id=int(order_id)).first()
     shipping = 30
+    order = Order.query.filter_by(id=int(order_id)).first()
+    if request.method == 'POST':
+        order.status = request.form['status']
+        db.session.commit()
+
     return render_template('admin/view-order.html', order=order, shipping=shipping, admin=True)
+
 
 def check_count():
     count_cart = 0

@@ -86,14 +86,12 @@
                 <h5 class="bold">{{ product.price }} грн.</h5>
 					<hr />
 					<p>
-						<a href="{{url_for('product', id=product.id)}}" class="btn btn-info btn-sm">
+						<a href="{{url_for('product', id=product.id)}}" class="btn btn-info btn-buy">
 							<i class="glyphicon glyphicon-eye-open"></i> Подробнее
 						</a>
                         {% if product.stock > 0 %}
-                            <button class="btn btn-primary btn-buy" id="{{ product.id }}">Купить</button>
-{#						<a href="{{ url_for('quick_add', id=product.id) }}" class="btn btn-success btn-sm" id="{{ product.id }}">#}
-{#							<i class="glyphicon glyphicon-shopping-cart"></i> Купить +#}
-{#						</a>#}
+                            <button class="btn btn-success btn-buy" id="{{ product.id }}">Купить</button>
+
                         {% endif %}
 					</p>
 				</div>

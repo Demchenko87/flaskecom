@@ -14,30 +14,46 @@
 	</div>
 </div>
 
+
 <div class="row mb-5">
-	<div class="col-lg-5">
+	    <div class="col-lg-5">
+        <div id="carousel" class="carousel slide" data-ride="carousel">
+            <div class="carousel-inner">
+                <div class="item active">
+                    <a href="{{ url_for('static', filename=product.image) }}" rel="fancy"><img src="{{ url_for('static', filename=product.image) }}" alt="{{ product.name }}"></a>
+                </div>
+                <div class="item">
+                    <a href="{{ url_for('static', filename=product.image) }}" rel="fancy"><img src="{{ url_for('static', filename=product.image) }}" alt="{{ product.name }}"></a>
+                </div>
+                <div class="item">
+                    <a href="{{ url_for('static', filename=product.image) }}" rel="fancy"><img src="{{ url_for('static', filename=product.image) }}" alt="{{ product.name }}"></a>
+                </div>
+                <div class="item">
+                    <a href="{{ url_for('static', filename=product.image) }}" rel="fancy"><img src="{{ url_for('static', filename=product.image) }}" alt="{{ product.name }}"></a>
+                </div>
 
-			<div class="thumbnail">
-				<img src="{{ url_for('static', filename=product.image) }}" alt="{{ product.name }}">
-			</div>
-        <div class="col-lg-4" style="padding:5px;">
-            <div class="thumbnail">
-            <img src="{{ url_for('static', filename=product.image) }}" alt="{{ product.name }}">
-</div>
+            </div>
         </div>
-        <div class="col-lg-4" style="padding:5px;">
-            <div class="thumbnail">
-            <img src="{{ url_for('static', filename=product.image) }}" alt="{{ product.name }}">
-</div>
-        </div>
-        <div class="col-lg-4" style="padding:5px;">
-            <div class="thumbnail">
-            <img src="{{ url_for('static', filename=product.image) }}" alt="{{ product.name }}">
-</div>
-        </div>
+    <div class="clearfix">
+        <div id="thumbcarousel" class="carousel slide" data-interval="false">
+            <div class="carousel-inner">
+                <div class="item active">
+                    <div data-target="#carousel" data-slide-to="0" class="thumb"><img src="{{ url_for('static', filename=product.image) }}" alt="{{ product.name }}"></div>
+                    <div data-target="#carousel" data-slide-to="1" class="thumb"><img src="{{ url_for('static', filename=product.image) }}" alt="{{ product.name }}"></div>
+                    <div data-target="#carousel" data-slide-to="2" class="thumb"><img src="{{ url_for('static', filename=product.image) }}" alt="{{ product.name }}"></div>
+                    <div data-target="#carousel" data-slide-to="3" class="thumb"><img src="{{ url_for('static', filename=product.image) }}" alt="{{ product.name }}"></div>
+                </div><!-- /item -->
 
-
-	</div>
+            </div><!-- /carousel-inner -->
+            <a class="left carousel-control" href="#thumbcarousel" role="button" data-slide="prev">
+                <span class="glyphicon glyphicon-chevron-left"></span>
+            </a>
+            <a class="right carousel-control" href="#thumbcarousel" role="button" data-slide="next">
+                <span class="glyphicon glyphicon-chevron-right"></span>
+            </a>
+        </div> <!-- /thumbcarousel -->
+    </div><!-- /clearfix -->
+    </div>
 
 	<div class="col-lg-7">
 		<div class="panel panel-primary">

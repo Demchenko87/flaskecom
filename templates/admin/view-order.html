@@ -8,8 +8,24 @@
 		<div class="panel panel-default">
 			<div class="panel-body">
 				<h3 class="bold">Заказ {{ order.reference }} от {{ order.first_name + ' ' + order.last_name }}</h3>
-				<p>Товаров: {{ order.quantity_total() }} на сумму: ({{ order.order_total() }} грн.)</p>
-				<p>Статус: <span class="badge">{{ order.status }}</span></p>
+				<h4>Редактировать <a href="#"><i class="glyphicon glyphicon-edit "></i></a></h4>
+                <p>Товаров: {{ order.quantity_total() }} на сумму: ({{ order.order_total() }} грн.)</p>
+				<div class="col-lg-4">
+                    <form method="post" id="change_status">
+                    <p>Статус:</p>
+    <select class="form-control" onchange="this.form.submit()" id="exampleFormControlSelect1" name="status">
+      <option value="{{ order.status }}">{{ order.status }}</option>
+      <option value="Новый заказ" >Новый заказ</option>
+      <option value="Оплачен" >Оплачен</option>
+      <option value="Отправлен" >Отправлен</option>
+      <option value="Выполнен" >Выполнен</option>
+      <option value="Отменен" >Отменен</option>
+    </select>
+
+
+
+                </form>
+                </div>
 			</div>
 		</div>
 	</div>

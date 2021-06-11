@@ -20,40 +20,68 @@
 		</ul>
 	</div>
 </div>
-<div class="row pad">
-	<div class="col-lg-6 pad">
-		<div class="panel panel-danger">
-			<div class="panel-heading">
+    <div class="row pad">
+	<div class="col-lg-12 pad">
+    <div class="panel panel-danger">
+    <div class="panel-heading">
 				<h3 class="panel-title">Все заказы интернет-магазина</h3>
 			</div>
+        {% if orders|length > 0 %}
+<table id="example" class="table table-striped table-bordered center" style="width:100%;">
+        <thead>
+            <tr>
+                <th>Заказ</th>
+                <th>Телефон</th>
+                <th>Адрес</th>
+                <th>Заказчик</th>
+                <th>Сумма</th>
+                <th>Статус</th>
+                <th></th>
 
-			<div class="table-responsive">
-				<table class="table table-striped table-bordered">
-					<thead>
-						<tr>
-							<th>Заказ</th><th>Код заказа</th><th>Заказчик</th><th>Сумма</th><th>Статус заказа</th><th></th>
-						</tr>
-					</thead>
-					<tbody>
+            </tr>
+        </thead>
+        <tbody>
+{% for order in orders %}
+    <tr>
+        <td><a href="{{ url_for('order', order_id=order.id) }}">{{ order.id }}</a></td>
+                                <td><a href="{{ url_for('order', order_id=order.id) }}">{{ order.phone_number }}</a></td>
+    <td><a href="{{ url_for('order', order_id=order.id) }}">{{ order.address }}</a></td>
+        <td><a href="{{ url_for('order', order_id=order.id) }}">{{ order.first_name + ' ' + order.last_name }}</a></td>
+                                <td>{{ order.order_total() }} грн.</td>
+                                <td>
 
-						{% for order in orders %}
-                            <tr>
-                                <td>{{ order.id }}</td>
-                                <td><a href="{{ url_for('order', order_id=order.id) }}">{{ order.reference }}</a></td>
-                                <td>{{ order.first_name + ' ' + order.last_name }}</td>
-                                <td>&dollar;{{ order.order_total() }}</td>
-                                <td><span class="badge">{{ order.status }}</span></td>
+                                    <div class="order-template alert alert-{% if order.status == 'Отменен'%}danger{% elif order.status == 'Выполнен'%}success{% elif order.status == 'Новый заказ'%}warning{% elif order.status == 'Оплачен'%}primary{% elif order.status == 'Отправлен'%}dark{% endif %}" role="alert"><a href="{{ url_for('order', order_id=order.id) }}">{{ order.status }}</a></div>
+
+                                </td>
                                 <td><a href="{{ url_for('remove_order', id=order.id) }}"><i class="glyphicon glyphicon-trash "></i></a></td>
-                            </tr>
-                        {% endfor %}
 
-					</tbody>
-				</table>
-			</div>
-		</div>
-	</div>
+            </tr>
+{% endfor %}
 
-	<div class="col-lg-6 pad">
+
+        </tbody>
+        <tfoot>
+            <tr>
+                <th>Заказ</th>
+                <th>Телефон</th>
+                <th>Адрес</th>
+                <th>Заказчик</th>
+                <th>Сумма</th>
+                <th>Статус</th>
+                <th></th>
+            </tr>
+        </tfoot>
+    </table>
+    {% else %}
+    <h4>У вас нет записей</h4>
+    {% endif %}
+    </div>
+    </div>
+    </div>
+<div class="row pad">
+
+
+	<div class="col-lg-12 pad">
 		<div class="panel panel-default">
 			<div class="panel-heading">
 				<h3 class="panel-title">Доступные товары</h3>
@@ -63,7 +91,7 @@
 				<table class="table table-striped table-bordered">
 					<thead>
 						<tr>
-                            <th>id</th><th>Товар</th><th>Цена</th><th>Наличие на складе</th><th></th>
+                            <th>id</th><th>Товар</th><th>Цена</th><th>Наличие на складе</th><th>Редактировать</th><th></th>
 						</tr>
 					</thead>
 					<tbody>
@@ -73,6 +101,7 @@
 							<td>{{ product.name }}</td>
 							<td>{{ product.price}} грн.</td>
 							<td>{{ product.stock}} шт.</td>
+                            <td><a href="{{ url_for('edit_product', id=product.id) }}"><i class="glyphicon glyphicon-edit "></i></a></td>
                             <td><a href="{{ url_for('remove_product', id=product.id) }}"><i class="glyphicon glyphicon-trash "></i></a></td>
 						</tr>
                         {% endfor %}
