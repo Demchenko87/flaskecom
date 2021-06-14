@@ -5,6 +5,7 @@
 {% block body %}
 <div class="row">
 	<div class="col-lg-8">
+     {% if product|length > 0 %}
 		<h3 class="bold">
 			<i class="glyphicon glyphicon-shopping-cart"></i> Ваша корзина
 		</h3>
@@ -47,8 +48,16 @@
 				</div>
 
                 {% endfor %}
+
+
 			</div>
 		</div>
+    {% else %}
+        <h3 class="bold">
+			<i class="glyphicon glyphicon-shopping-cart"></i> Ваша корзина Пуста
+		</h3>
+    {% endif %}
+
 	</div>
     <div class="col-lg-4">
     {% include 'cart_summary.html' %}

@@ -126,8 +126,8 @@ class Slider(db.Model):
 
 class AddSlider(FlaskForm):
     pagetitle = StringField('Заголовок')
-    description = StringField('Описание')
-    image = FileField('Картинка', validators=[FileAllowed(IMAGES, 'Добавлять можно только картинки')])
+    description = TextAreaField('Описание')
+    image = FileField('Image', validators=[FileAllowed(IMAGES, 'Only images are accepted.')])
 
 def handle_cart():
     products = []
@@ -150,9 +150,10 @@ def handle_cart():
 @app.route('/')
 def index():
     # session['cart'] = []
+    slider = Slider.query.all()
     products = Product.query.all()
     count_cart = check_count()
-    return render_template('index.html', products=products, count_cart=count_cart)
+    return render_template('index.html', products=products, count_cart=count_cart, slider=slider)
 
 @app.route('/search', methods=['GET', 'POST'])
 def search():
@@ -274,8 +275,51 @@ def edit_shipping():
         shipping.price = request.form['price']
         db.session.commit()
         return redirect(request.referrer)
-        return redirect(request.referrer)
+
     return render_template('admin/edit_shipping.html', admin=True, shipping=shipping)
+
+@app.route('/admin/add_slider', methods=['GET', 'POST'])
+@login_required
+def add_slider():
+    form = AddSlider()
+    slider = Slider.query.all()
+    if form.validate_on_submit():
+        image_url_main = photos.save(form.image.data)
+        image_url = 'images/' + image_url_main
+        new_slider = Slider(pagetitle=form.pagetitle.data, description=form.description.data, image=image_url)
+        db.session.add(new_slider)
+        db.session.commit()
+        return redirect(url_for('add_slider'))
+    return render_template('admin/add_slider.html', admin=True, form=form, slider=slider)
+
+@app.route('/admin/edit_slider/<int:id>', methods=['GET', 'POST'])
+@login_required
+def edit_slider(id):
+    slider = Slider.query.get(id)
+    if request.method == 'POST':
+        slider.pagetitle = request.form['pagetitle']
+        slider.description = request.form['description']
+        if request.files['image'].filename == '':
+            pass
+        else:
+            image_url_main = photos.save(request.files["image"])
+            slider.image = 'images/' + image_url_main
+        try:
+            db.session.commit()
+            return redirect(request.referrer)
+        except:
+            return "При редактировании произошла ошибка"
+    else:
+
+        return render_template('admin/edit_slider.html', admin=True, slider=slider)
+
+@app.route('/admin/delete/slider/<int:id>', methods=['GET'])
+@login_required
+def delete_slider(id):
+    slider = Slider.query.filter_by(id=id).first()
+    db.session.delete(slider)
+    db.session.commit()
+    return redirect(request.referrer)
 
 @app.route('/admin/delete/<int:id>', methods=['GET'])
 @login_required
