@@ -36,6 +36,8 @@ class Product(db.Model):
     image = db.Column(db.String(100))
     order = db.relationship('Order_Item', backref='product', lazy=True)
 
+
+
 class Order(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     reference = db.Column(db.String(5))
@@ -52,11 +54,14 @@ class Order(db.Model):
     items = db.relationship('Order_Item', backref='order', lazy=True)
 
     def order_total(self):
-        shipping = 30
+        ship_price = Shipping.query.first()
+        shipping = ship_price.price
+
         return db.session.query(db.func.sum(Order_Item.quantity * Product.price)).join(Product).filter(Order_Item.order_id == self.id).scalar() + shipping
 
     def quantity_total(self):
         return db.session.query(db.func.sum(Order_Item.quantity)).filter(Order_Item.order_id == self.id).scalar()
+
 class Order_Item(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     order_id = db.Column(db.Integer, db.ForeignKey('order.id'))
@@ -106,11 +111,29 @@ class Role(db.Model, RoleMixin):
 user_datastore = SQLAlchemyUserDatastore(db, User, Role)
 security = Security(app, user_datastore)
 
+class Shipping(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    price = db.Column(db.Integer)
+#
+# class AddShipping(FlaskForm):
+#     price = IntegerField('Price')
+
+class Slider(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    pagetitle = db.Column(db.String(100))
+    description = db.Column(db.String(100))
+    image = db.Column(db.String(100))
+
+class AddSlider(FlaskForm):
+    pagetitle = StringField('Заголовок')
+    description = StringField('Описание')
+    image = FileField('Картинка', validators=[FileAllowed(IMAGES, 'Добавлять можно только картинки')])
 
 def handle_cart():
     products = []
     grand_total = 0
-    shipping = 30
+    ship_price = Shipping.query.first()
+    shipping = ship_price.price
     index = 0
     quatity_total = 0
     for item in session['cart']:
@@ -139,16 +162,13 @@ def search():
         products = Product.query.filter(Product.name.contains(search) | Product.description.contains(search))
     else:
         products = Product.query.all()
-
     return render_template('search.html', products=products, count_cart=count_cart)
 
 @app.route('/product/<id>')
 def product(id):
     product = Product.query.filter_by(id=id).first()
     form = AddToCart()
-
     count_cart = check_count()
-
     return render_template('view-product.html', product=product, form=form, count_cart=count_cart)
 
 # @app.route('/quick-add/<id>')
@@ -180,18 +200,13 @@ def add_to_cart():
         session['cart'] = []
     form = AddToCart()
     if form.validate_on_submit():
-
         session['cart'].append({'id': form.id.data, 'quantity': form.quantity.data})
         session.modified = True
-
-    return redirect(url_for('index'))
-
+    return redirect(request.referrer)
 
 @app.route('/cart')
 def cart():
     count_cart = check_count()
-
-
     products, grand_total, grand_total_plus_shipping, shipping, quatity_total = handle_cart()
     return render_template('cart.html', count_cart=count_cart, products=products, shipping=shipping, grand_total=grand_total, grand_total_plus_shipping=grand_total_plus_shipping, quatity_total=quatity_total)
 
@@ -206,10 +221,7 @@ def checkout():
     form = Checkout()
     products, grand_total, grand_total_plus_shipping, shipping, quatity_total = handle_cart()
     count_cart = check_count()
-
-
     if form.validate_on_submit():
-
         order = Order()
         form.populate_obj(order)
         order.reference = ''.join([random.choice('ABCDE') for _ in range(5)])
@@ -217,16 +229,12 @@ def checkout():
         for product in products:
             order_item = Order_Item(quantity=product['quantity'], product_id=product['id'])
             order.items.append(order_item)
-
             product = Product.query.filter_by(id=product['id']).update({'stock': Product.stock - product['quantity']})
-
         db.session.add(order)
         db.session.commit()
-
         session['cart'] = []
         session.modified = True
         return redirect(url_for('index'))
-
     return render_template('checkout.html', form=form, products=products, shipping=shipping, grand_total=grand_total, grand_total_plus_shipping=grand_total_plus_shipping, count_cart=count_cart, quatity_total=quatity_total)
 
 @app.route('/admin')
@@ -235,10 +243,39 @@ def admin():
     products = Product.query.all()
     products_in_stock = Product.query.filter(Product.stock > 0).count()
     orders = Order.query.all()
-
     count_cart = check_count()
     return render_template('admin/index.html', admin=True, count_cart=count_cart, products=products, products_in_stock=products_in_stock, orders=orders)
 
+@app.route('/admin/list-products')
+@login_required
+def list_products():
+    products = Product.query.all()
+    products_in_stock = Product.query.filter(Product.stock > 0).count()
+    orders = Order.query.all()
+    count_cart = check_count()
+    return render_template('admin/list_products.html', admin=True, count_cart=count_cart, products=products, products_in_stock=products_in_stock, orders=orders)
+
+# @app.route('/admin/add_shipping', methods=['GET', 'POST'])
+# @login_required
+# def add_shipping():
+#     form = AddShipping()
+#     if form.validate_on_submit():
+#         new_product = Shipping(price=form.price.data)
+#         db.session.add(new_product)
+#         db.session.commit()
+#         return redirect(url_for('admin'))
+#     return render_template('admin/add_shipping.html', admin=True, form=form)
+
+@app.route('/admin/edit_shipping', methods=['GET', 'POST'])
+@login_required
+def edit_shipping():
+    shipping = Shipping.query.first()
+    if request.method == 'POST':
+        shipping.price = request.form['price']
+        db.session.commit()
+        return redirect(request.referrer)
+        return redirect(request.referrer)
+    return render_template('admin/edit_shipping.html', admin=True, shipping=shipping)
 
 @app.route('/admin/delete/<int:id>', methods=['GET'])
 @login_required
@@ -264,15 +301,11 @@ def edit_product(id):
             product.image = 'images/' + image_url_main
         try:
             db.session.commit()
-            return redirect('/admin')
+            return redirect('/admin/list-products')
         except:
             return "При редактировании произошла ошибка"
     else:
         return render_template('admin/edit-product.html', product=product, admin=True)
-
-
-
-
 
 @app.route('/admin/delete_order/<int:id>', methods=['GET'])
 @login_required
@@ -286,7 +319,6 @@ def remove_order(id):
 @login_required
 def add():
     form = AddProduct()
-
     if form.validate_on_submit():
         image_url_main = photos.save(form.image.data)
         image_url = 'images/' + image_url_main
@@ -295,21 +327,38 @@ def add():
         db.session.add(new_product)
         db.session.commit()
 
-        return redirect(url_for('admin'))
+        return redirect(url_for('list_products'))
 
     return render_template('admin/add-product.html', admin=True, form=form)
 
 @app.route('/admin/order/<order_id>', methods=['GET', 'POST'])
 @login_required
 def order(order_id):
-    shipping = 30
+    ship_price = Shipping.query.first()
+    shipping = ship_price.price
     order = Order.query.filter_by(id=int(order_id)).first()
     if request.method == 'POST':
         order.status = request.form['status']
         db.session.commit()
-
     return render_template('admin/view-order.html', order=order, shipping=shipping, admin=True)
 
+
+@app.route('/admin/edit/order/<int:id>', methods=['POST', 'GET'])
+@login_required
+def edit_order(id):
+    order = Order.query.get(id)
+    count_cart = check_count()
+    if request.method == 'POST':
+        order.first_name = request.form['first_name']
+        order.last_name = request.form['last_name']
+        order.phone_number = request.form['phone_number']
+        order.email = request.form['email']
+        order.address = request.form['address']
+        order.city = request.form['city']
+        order.payment_type = request.form['payment_type']
+        db.session.commit()
+
+    return render_template('admin/edit-order.html', admin=True, order=order, count_cart=count_cart)
 
 def check_count():
     count_cart = 0
@@ -320,8 +369,6 @@ def check_count():
     else:
         count_cart = 0
     return count_cart
-
-
 
 if __name__ == '__main__':
     app.run()

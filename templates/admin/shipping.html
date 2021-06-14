@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}Панель администрирования{% endblock %}
+
+{% block body %}
+<div class="row pad">
+	<div class="col-lg-12">
+		<div class="panel panel-default">
+			<div class="panel-body text-center">
+				<h3 class="bold"><i class="glyphicon glyphicon-dashboard"></i> Админ панель</h3>
+			</div>
+		</div>
+	</div>
+	<div class="col-lg-12">
+		<ul class="summary">
+			<li class="">Заказы в ожидании <span class="badge">{{ orders|length }}</span></li>
+			<li class="">Товары в наличии <span class="badge">{{ products_in_stock }}</span></li>
+			<li class="">Товаров нет в наличии <span class="badge">{{ products|length - products_in_stock }}</span></li>
+			<li class="">Всего товаров <span class="badge">{{ products|length }}</span></li>
+		</ul>
+	</div>
+</div>
+
+<div class="row pad">
+
+	<div class="col-lg-12 pad">
+     <a href="{{ url_for('add') }}" class="btn btn-warning" style="margin-bottom: 30px;"><i class="glyphicon glyphicon-plus-sign"></i> Добавить товар</a>
+
+		<div class="panel panel-default">
+
+			<div class="panel-heading">
+				<h3 class="panel-title">Доступные товары</h3>
+			</div>
+
+			<div class="table-responsive">
+                <form action="" method="POST">
+                    <div class="form-group">
+                        <label>Укажите стоимость доставки</label>
+                        <input type="text" name="shipping" class="form-control" value="{{ shipping.price }}" required>
+                    </div>
+                </form>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}

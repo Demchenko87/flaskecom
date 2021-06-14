@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}Добавление товара{% endblock %}
+
+{% block body %}
+<div class="row pad">
+	<div class="col-lg-12">
+		<h2 class="bold text-center">Добавить товар в каталог</h2>
+
+        <h2 class="bold text-center"><a href="{{ url_for('edit_shipping') }}">редактировать цену на доставку</a>  </h2>
+	</div>
+</div>
+
+<div class="row">
+	<div class="col-lg-10 col-lg-offset-1">
+		<div class="panel panel-default">
+			<form method="POST" action="{{ url_for('add_shipping') }}">
+				<div class="panel-body">
+					<div class="row">
+						{{ form.csrf_token }}
+						<div class="col-lg-6">
+							<div class="form-group">
+								<label>Цена доставки</label>
+								{{ form.price(class='form-control') }}
+							</div>
+
+
+						</div>
+
+					</div>
+				</div>
+
+				<div class="panel-footer">
+					<button type="submit" class="btn btn-primary">
+						<i class="glyphicon glyphicon-plus-sign"></i> Сохранить
+					</button>
+				</div>
+			</form>
+
+
+		</div>
+	</div>
+</div>
+{% endblock %}

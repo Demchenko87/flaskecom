@@ -8,8 +8,7 @@
 		<div class="panel panel-default">
 			<div class="panel-body">
 				<h3 class="bold">Заказ {{ order.reference }} от {{ order.first_name + ' ' + order.last_name }}</h3>
-				<h4>Редактировать <a href="#"><i class="glyphicon glyphicon-edit "></i></a></h4>
-                <p>Товаров: {{ order.quantity_total() }} на сумму: ({{ order.order_total() }} грн.)</p>
+				 <p>Товаров: {{ order.quantity_total() }} на сумму: ({{ order.order_total() }} грн.)</p>
 				<div class="col-lg-4">
                     <form method="post" id="change_status">
                     <p>Статус:</p>
@@ -75,6 +74,8 @@
 	</div>
 	<div class="col-lg-6">
 		<h3 class="strong">Информация о покупателе</h3>
+        <h4>Редактировать <a href="{{ url_for('edit_order', id=order.id) }}"><i class="glyphicon glyphicon-edit "></i></a></h4>
+
 		<div role="tabpanel">
 			<!-- Nav tabs -->
 			<ul class="nav nav-tabs" role="tablist">
@@ -94,8 +95,7 @@
 					<p><i class="glyphicon glyphicon-map-marker"></i> АДРЕС:
 						<strong>{{ order.address }}</strong>
 					</p>
-					<p><i class="glyphicon glyphicon-th"></i> Штат: <strong>{{ order.state }}</strong></p>
-					<p><i class="glyphicon glyphicon-flag"></i> Страна: <strong>{{ order.country}}</strong></p>
+					<p><i class="glyphicon glyphicon-flag"></i> Страна: <strong>{{ order.city}}</strong></p>
 					<hr />
 
 					<hr />
