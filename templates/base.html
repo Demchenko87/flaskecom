@@ -50,7 +50,7 @@
 
                         <li><a href="{{ url_for('edit_shipping') }}"><i class="glyphicon glyphicon-triangle-top"></i> Доставка</a></li>
 
-                        <li><a href="#"><i class="glyphicon glyphicon-signal"></i> Статистика</a></li>
+                        <li><a href="{{ url_for('statistic') }}"><i class="glyphicon glyphicon-signal"></i> Статистика</a></li>
                         <li><a href="#"><i class="glyphicon glyphicon-hand-down"></i> Скидка</a></li>
                         <li><a href="#" title="Импорт, экспорт каталога"><i class="glyphicon glyphicon-import"></i> <i class="glyphicon glyphicon-export"></i> CSV</a></li>
 
@@ -205,6 +205,35 @@
        $("a[rel=fancy]").fancybox({'transitionIn': 'none','transitionOut': 'none', 'nextEffect': 'none', 'prevEffect': 'none'});
   });
 </script>
+        <script>
+window.onload = function () {
 
+var options = {
+
+	animationEnabled: true,
+	data: [{
+		type: "pie",
+		startAngle: 40,
+		toolTipContent: "<b>{label}</b>: {y} шт.",
+		showInLegend: "true",
+		legendText: "{label}",
+		indexLabelFontSize: 16,
+		indexLabel: "{label} - {y} шт.",
+		dataPoints: [
+			{ y: {{ orders_done }}, label: "Выполнен" },
+			{ y: {{ orders_cancel }}, label: "Отменен" },
+			{ y: {{ orders_new }}, label: "Новый заказ" },
+            { y: {{ orders_send }}, label: "Отправлен" },
+            { y: {{ orders_pay }}, label: "Оплачен" },
+
+
+		]
+	}]
+};
+$("#chartContainer").CanvasJSChart(options);
+
+}
+</script>
+<script src="https://canvasjs.com/assets/script/jquery.canvasjs.min.js"></script>
     </body>
 </html>

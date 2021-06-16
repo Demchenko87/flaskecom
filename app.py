@@ -36,8 +36,6 @@ class Product(db.Model):
     image = db.Column(db.String(100))
     order = db.relationship('Order_Item', backref='product', lazy=True)
 
-
-
 class Order(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     reference = db.Column(db.String(5))
@@ -95,7 +93,9 @@ class Checkout(FlaskForm):
 roles_users = db.Table('roles_users', db.Column('user_id', db.Integer(), db.ForeignKey('user.id')),
                        db.Column('role_id', db.Integer(), db.ForeignKey('role.id'))
                        )
+#----- end flask security
 
+#---Create User and Role user
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer(), primary_key=True)
     email = db.Column(db.String(100), unique=True)
@@ -110,20 +110,22 @@ class Role(db.Model, RoleMixin):
 
 user_datastore = SQLAlchemyUserDatastore(db, User, Role)
 security = Security(app, user_datastore)
+#----end Create User and Role user
 
+#---- Shipping
 class Shipping(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     price = db.Column(db.Integer)
 #
 # class AddShipping(FlaskForm):
 #     price = IntegerField('Price')
+#---- End Shipping
 
 class Slider(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     pagetitle = db.Column(db.String(100))
     description = db.Column(db.String(100))
     image = db.Column(db.String(100))
-
 class AddSlider(FlaskForm):
     pagetitle = StringField('Заголовок')
     description = TextAreaField('Описание')
@@ -247,6 +249,18 @@ def admin():
     count_cart = check_count()
     return render_template('admin/index.html', admin=True, count_cart=count_cart, products=products, products_in_stock=products_in_stock, orders=orders)
 
+@app.route('/statistic')
+@login_required
+def statistic():
+    orders_done = Order.query.filter_by(status='Выполнен').count()
+    orders_new = Order.query.filter_by(status='Новый заказ').count()
+    orders_pay = Order.query.filter_by(status='Оплачен').count()
+    orders_send = Order.query.filter_by(status='Отправлен').count()
+    orders_cancel = Order.query.filter_by(status='Отменен').count()
+
+    return render_template('admin/statistic.html', admin=True, orders_done=orders_done, orders_new=orders_new, orders_pay=orders_pay, orders_send=orders_send, orders_cancel=orders_cancel)
+
+
 @app.route('/admin/list-products')
 @login_required
 def list_products():
@@ -275,7 +289,6 @@ def edit_shipping():
         shipping.price = request.form['price']
         db.session.commit()
         return redirect(request.referrer)
-
     return render_template('admin/edit_shipping.html', admin=True, shipping=shipping)
 
 @app.route('/admin/add_slider', methods=['GET', 'POST'])
@@ -310,7 +323,6 @@ def edit_slider(id):
         except:
             return "При редактировании произошла ошибка"
     else:
-
         return render_template('admin/edit_slider.html', admin=True, slider=slider)
 
 @app.route('/admin/delete/slider/<int:id>', methods=['GET'])
@@ -367,12 +379,9 @@ def add():
         image_url_main = photos.save(form.image.data)
         image_url = 'images/' + image_url_main
         new_product = Product(name=form.name.data, price=form.price.data, stock=form.stock.data, description=form.description.data, image=image_url)
-
         db.session.add(new_product)
         db.session.commit()
-
         return redirect(url_for('list_products'))
-
     return render_template('admin/add-product.html', admin=True, form=form)
 
 @app.route('/admin/order/<order_id>', methods=['GET', 'POST'])
@@ -401,7 +410,6 @@ def edit_order(id):
         order.city = request.form['city']
         order.payment_type = request.form['payment_type']
         db.session.commit()
-
     return render_template('admin/edit-order.html', admin=True, order=order, count_cart=count_cart)
 
 def check_count():
