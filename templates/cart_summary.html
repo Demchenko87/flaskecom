@@ -21,10 +21,12 @@
 
 				</li>
 			</ul>
-			<div class="panel-footer">
-				<a href="{{ url_for('checkout') }}" class="btn btn-primary btn-sm">
+			<div class="panel-footer" style="height: 50px;">
+				 {% if session['cart'] == [] %} {% else %}
+                 <a href="{{ url_for('checkout') }}" class="btn btn-primary btn-sm">
 					Оформить заказ <i class="glyphicon glyphicon-chevron-right"></i>
 				</a>
+                {% endif %}
 				<a href="{{ url_for('index') }}" class="btn btn-link btn-sm pull-right">
 					<i class="glyphicon glyphicon-chevron-left"></i> Продолжить покупки
 				</a>

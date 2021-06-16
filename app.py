@@ -160,7 +160,6 @@ def index():
 def page_not_found(e):
     return render_template('404.html'), 404
 
-
 @app.route('/search', methods=['GET', 'POST'])
 def search():
     count_cart = check_count()

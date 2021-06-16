@@ -1,66 +1,62 @@
+
+
 {% extends "base.html" %}
-
 {% block title %}Корзина заказа{% endblock %}
-
 {% block body %}
 <div class="row">
-	<div class="col-lg-8">
-     {% if product|length > 0 %}
-		<h3 class="bold">
-			<i class="glyphicon glyphicon-shopping-cart"></i> Ваша корзина
-		</h3>
-
-		<div class="panel panel-primary">
-			<div class="panel-body">
-				{% for product in products %}
-                    <div class="row">
-					<div class="col-lg-4">
-						<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-							<div class="thumbnail thumbnail-q">
-                                <a href="{{url_for('product', id=product.id)}}"><img src="{{ url_for('static', filename=product.image) }}" alt="{{ product.name }}"></a>
-							</div>
-						</div>
-					</div>
-					<div class="col-lg-4">
-                        <h3>Название</h3>
-                        <a href="{{url_for('product', id=product.id)}}"><h4 class="bold">{{ product['name'] }}</h4></a>
-						<p>{{ product['price'] }} грн.</p>
-						<br />
-						<p>
-
-<a href="{{ url_for('remove_form_cart', index=product['index']) }}" class="btn btn-danger btn-xs"><i class="glyphicon glyphicon-trash"></i></a>
-
-						</p>
-					</div>
-					<div class="col-lg-2">
-						<h3>Кол.</h3>
-						<p>
-
-							{{ product['quantity'] }}
-						</p>
-					</div>
-					<div class="col-lg-2">
-						<h3>Сумма</h3>
-						<p>
-							<strong>{{ product['total'] }} грн.</strong>
-						</p>
-					</div>
-				</div>
-
-                {% endfor %}
-
-
-			</div>
-		</div>
-    {% else %}
-        <h3 class="bold">
-			<i class="glyphicon glyphicon-shopping-cart"></i> Ваша корзина Пуста
-		</h3>
-    {% endif %}
-
-	</div>
-    <div class="col-lg-4">
-    {% include 'cart_summary.html' %}
-    </div>
+   <div class="col-lg-8">
+      {% if session['cart'] == [] %}
+      <h3 class="bold">
+         <i class="glyphicon glyphicon-shopping-cart"></i> Ваша корзина Пуста
+      </h3>
+          <img src="{{ url_for('static', filename='imgs/cart.png') }}" alt="cart" width="100%">
+      {% else %}
+      <h3 class="bold">
+         <i class="glyphicon glyphicon-shopping-cart"></i> Ваша корзина
+      </h3>
+      <div class="panel panel-primary">
+         <div class="panel-body">
+            {% for product in products %}
+            <div class="row">
+               <div class="col-lg-4">
+                  <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                     <div class="thumbnail thumbnail-q">
+                        <a href="{{url_for('product', id=product.id)}}"><img src="{{ url_for('static', filename=product.image) }}" alt="{{ product.name }}"></a>
+                     </div>
+                  </div>
+               </div>
+               <div class="col-lg-4">
+                  <h3>Название</h3>
+                  <a href="{{url_for('product', id=product.id)}}">
+                     <h4 class="bold">{{ product['name'] }}</h4>
+                  </a>
+                  <p>{{ product['price'] }} грн.</p>
+                  <br />
+                  <p>
+                     <a href="{{ url_for('remove_form_cart', index=product['index']) }}" class="btn btn-danger btn-xs"><i class="glyphicon glyphicon-trash"></i></a>
+                  </p>
+               </div>
+               <div class="col-lg-2">
+                  <h3>Кол.</h3>
+                  <p>
+                     {{ product['quantity'] }}
+                  </p>
+               </div>
+               <div class="col-lg-2">
+                  <h3>Сумма</h3>
+                  <p>
+                     <strong>{{ product['total'] }} грн.</strong>
+                  </p>
+               </div>
+            </div>
+            {% endfor %}
+         </div>
+      </div>
+      {% endif %}
+   </div>
+   <div class="col-lg-4">
+      {% include 'cart_summary.html' %}
+   </div>
 </div>
 {% endblock %}
+

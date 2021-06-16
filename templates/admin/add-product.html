@@ -1,61 +1,89 @@
 {% extends "base.html" %}
-
 {% block title %}Добавление товара{% endblock %}
-
 {% block body %}
-<div class="row pad">
-	<div class="col-lg-12">
-		<h2 class="bold text-center">Добавить товар в каталог</h2>
-	</div>
-</div>
-
 <div class="row">
-	<div class="col-lg-10 col-lg-offset-1">
-		<div class="panel panel-default">
-			<form method="POST" action="{{ url_for('add') }}" enctype="multipart/form-data">
-				<div class="panel-body">
-					<div class="row">
-						{{ form.csrf_token }}
-						<div class="col-lg-12">
-							<div class="form-group">
-								<label>Название товара</label>
-								{{ form.name(class='form-control') }}
-							</div>
-
-							<div class="form-group">
-								<label>Цена товара</label>
-								{{ form.price(class='form-control', type='number') }}
-							</div>
-
-							<div class="form-group">
-								<label>Кол. шт.</label>
-								{{ form.stock(class='form-control', type='number') }}
-							</div>
-                            <div class="form-group">
-
-									<label>Описание</label>
-									{{ form.description(class='form-control') }}
-								</div>
-
-                                <div class="form-group">
-								<label>Картинка товара</label>
-								{{ form.image(class='form-control') }}
-							</div>
-						</div>
-
-					</div>
-				</div>
-
-				<div class="panel-footer">
-					<button type="submit" class="btn btn-primary">
-						<i class="glyphicon glyphicon-plus-sign"></i> Сохранить
-					</button>
-				</div>
-			</form>
-		</div>
-	</div>
+   <div class="col-lg-10 col-lg-offset-1">
+      <div class="row pad">
+         <div class="col-lg-12">
+            <h2 class="bold text-center">Добавить товар в каталог</h2>
+         </div>
+      </div>
+      <div role="tabpanel">
+         <!-- Nav tabs -->
+         <ul class="nav nav-tabs" role="tablist">
+            <li role="presentation" class="active">
+               <a href="#main" aria-controls="main" role="tab" data-toggle="tab">Основная информация</a>
+            </li>
+            <li role="presentation">
+               <a href="#seo" aria-controls="seo" role="tab" data-toggle="tab">Для SEO</a>
+            </li>
+         </ul>
+         <form method="POST" action="{{ url_for('add') }}" enctype="multipart/form-data">
+            <div class="tab-content">
+               <div role="tabpanel" class="tab-pane active text-justify" id="main">
+                  <div class="panel panel-default">
+                     <div class="panel-body">
+                        <div class="row">
+                           {{ form.csrf_token }}
+                           <div class="col-lg-12">
+                              <div class="form-group">
+                                 <label>Название товара</label>
+                                 {{ form.name(class='form-control') }}
+                              </div>
+                              <div class="form-group">
+                                 <label>Цена товара</label>
+                                 {{ form.price(class='form-control', type='number') }}
+                              </div>
+                              <div class="form-group">
+                                 <label>Кол. шт.</label>
+                                 {{ form.stock(class='form-control', type='number') }}
+                              </div>
+                              <div class="form-group">
+                                 <label>Описание</label>
+                                 {{ form.description(class='form-control') }}
+                              </div>
+                              <div class="form-group">
+                                 <label>Картинка товара</label>
+                                 {{ form.image(class='form-control') }}
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+               <div role="tabpanel" class="tab-pane text-justify" id="seo">
+                  <div class="panel panel-default">
+                     <div class="panel-body">
+                        <div class="row">
+                           <div class="col-lg-12">
+                              <div class="form-group">
+                                 <label>Meta title</label>
+                                 <input type="text" class='form-control'>
+                              </div>
+                              <div class="form-group">
+                                 <label>Meta keywords</label>
+                                 <input type="text" class='form-control'>
+                              </div>
+                              <div class="form-group">
+                                 <label>Meta description</label>
+                                 <input type="text" class='form-control'>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+            </div>
+            <div class="panel-footer">
+               <button type="submit" class="btn btn-primary">
+               <i class="glyphicon glyphicon-plus-sign"></i> Сохранить
+               </button>
+            </div>
+         </form>
+      </div>
+   </div>
 </div>
-
-    {{ ckeditor.load() }}
-    {{ ckeditor.config(name='description') }}
+{{ ckeditor.load() }}
+{{ ckeditor.config(name='description') }}
 {% endblock %}
+
