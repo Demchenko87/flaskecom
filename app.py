@@ -1,17 +1,16 @@
-import os
-
-from flask import Flask, flash, render_template, redirect, url_for, session, request, jsonify
+from flask import Flask, render_template, redirect, url_for, session, request, jsonify
 from flask_security import UserMixin, RoleMixin, SQLAlchemyUserDatastore, Security, login_required
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_uploads import UploadSet, configure_uploads, IMAGES
 from flask_wtf import FlaskForm
+from flask_ckeditor import CKEditor, CKEditorField
 from wtforms import StringField, IntegerField, TextAreaField, HiddenField, SelectField
 from flask_wtf.file import FileField, FileAllowed
 import random
 import email_validator
 app = Flask(__name__)
-
+ckeditor = CKEditor(app)
 photos = UploadSet('photos', IMAGES)
 
 app.config['UPLOADED_PHOTOS_DEST'] = 'static/images'
@@ -70,7 +69,7 @@ class AddProduct(FlaskForm):
     name = StringField('Name')
     price = IntegerField('Price')
     stock = IntegerField('Stock')
-    description = TextAreaField('Description')
+    description = CKEditorField('Description')
     image = FileField('Image', validators=[FileAllowed(IMAGES, 'Only images are accepted.')])
 
 class AddToCart(FlaskForm):
@@ -128,7 +127,7 @@ class Slider(db.Model):
     image = db.Column(db.String(100))
 class AddSlider(FlaskForm):
     pagetitle = StringField('Заголовок')
-    description = TextAreaField('Описание')
+    description = CKEditorField('Описание')
     image = FileField('Image', validators=[FileAllowed(IMAGES, 'Only images are accepted.')])
 
 def handle_cart():
@@ -317,6 +316,7 @@ def edit_slider(id):
     if request.method == 'POST':
         slider.pagetitle = request.form['pagetitle']
         slider.description = request.form['description']
+
         if request.files['image'].filename == '':
             pass
         else:

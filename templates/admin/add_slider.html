@@ -48,11 +48,14 @@
     {% for slider in slider %}
         <div class="col-lg-4">
             <h3>{{ slider.pagetitle }} <a href="{{ url_for('edit_slider', id=slider.id) }}" title="Редактировать"><i class="glyphicon glyphicon-edit "></i></a></h3>
-            <h5>{{ slider.description }}</h5>
+            <h5>{{ slider.description | safe }}</h5>
         <img src="{{ url_for('static', filename=slider.image) }}" alt="картинка слайдера {{ slider.id }}" width="100%">
         <h5><a href="{{ url_for('delete_slider', id=slider.id) }}" title="Удалить" class="btn-danger" style="padding: 5px; border-radius: 5px;"> <i class="glyphicon glyphicon-trash "></i></a></h5>
     </div>
     {% endfor %}
 
 </div>
+
+    {{ ckeditor.load() }}
+    {{ ckeditor.config(name='description') }}
 {% endblock %}

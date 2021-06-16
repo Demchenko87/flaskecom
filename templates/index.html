@@ -15,7 +15,7 @@
 						<div class="carousel-caption">
 							<h1>{{ slider.pagetitle }}</h1>
 							<p>
-								{{ slider.description }}
+								{{ slider.description | safe }}
 							</p>
 						</div>
 					</div>
@@ -55,7 +55,7 @@
 				<div class="caption text-center">
 					<h4 class="bold">{{ product.name }}</h4>
 					<p>
-						{{ product.description }}
+						{{ product.description | safe }}
 					</p>
                 <h5 class="bold">{{ product.price }} грн.</h5>
 					<hr />
