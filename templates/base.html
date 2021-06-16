@@ -34,15 +34,15 @@
                 <!-- Collect the nav links, forms, and other content for toggling -->
                 <div class="collapse navbar-collapse navbar-ex1-collapse">
                     <ul class="nav navbar-nav">
-                        <li class="active">
-                            <a href="{{ url_for('admin') }}"><i class="glyphicon glyphicon-dashboard"></i> Админ панель</a>
+                        <li class="active dropdown">
+                            <a href="{{ url_for('admin') }}" class="dropdown-toggle" data-toggle="dropdown"><i class="glyphicon glyphicon-dashboard"></i> Админ панель <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+            <li><a href="{{ url_for('add_slider')}}"><i class="glyphicon glyphicon-plus"></i> Слайдер</a></li>
+            <li><a href="#"><i class="glyphicon glyphicon-plus"></i> Текст на Главной</a></li>
+            <li><a href="#"><i class="glyphicon glyphicon-plus"></i> Оплата и Доставка</a></li>
+            <li><a href="#"><i class="glyphicon glyphicon-plus"></i> Контакты</a></li>
+          </ul>
                         </li>
-                        <li>
-                            <a href="{{ url_for('add_slider')}}"><i class="glyphicon glyphicon-plus"></i> Слайдер</a>
-
-                        </li>
-
-
 
                         <li>
                             <a href="{{ url_for('list_products') }}"><i class="glyphicon glyphicon-list-alt"></i> Список товаров</a>

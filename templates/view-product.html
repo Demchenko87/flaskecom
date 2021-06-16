@@ -72,7 +72,7 @@
                 </small></h3>
 				<h4>{{ product.price }} грн.</h4>
 				<hr />
-                {{ product.description }}
+                {{ product.description | safe}}
                 <hr />
 
             {% if product.stock > 0 %}
