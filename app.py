@@ -1,3 +1,5 @@
+import re
+
 from flask import Flask, render_template, redirect, url_for, session, request, jsonify
 from flask_security import UserMixin, RoleMixin, SQLAlchemyUserDatastore, Security, login_required
 from flask_sqlalchemy import SQLAlchemy
@@ -6,7 +8,7 @@ from flask_uploads import UploadSet, configure_uploads, IMAGES
 from flask_wtf import FlaskForm
 from flask_ckeditor import CKEditor, CKEditorField
 from wtforms import StringField, IntegerField, TextAreaField, HiddenField, SelectField
-from flask_wtf.file import FileField, FileAllowed
+from flask_wtf.file import FileField, FileAllowed, FileRequired
 import random
 import email_validator
 app = Flask(__name__)
@@ -26,15 +28,31 @@ configure_uploads(app, photos)
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
+
+def slugify(s):
+    pattern = r'[^\w+]'
+    return re.sub(pattern, '-', s)
+
 class Product(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), unique=True)
     price = db.Column(db.Integer)
     stock = db.Column(db.Integer)
+    slug = db.Column(db.String(140), unique=True)
     description = db.Column(db.String(500))
-    image = db.Column(db.String(100))
+    image = db.Column(db.String(100), nullable=True)
     image2 = db.Column(db.String(100), nullable=True)
+    image3 = db.Column(db.String(100), nullable=True)
+    image4 = db.Column(db.String(100), nullable=True)
     order = db.relationship('Order_Item', backref='product', lazy=True)
+
+    def __init__(self, *args, **kwargs):
+        super(Product, self).__init__(*args, **kwargs)
+        self.generate_slug()
+
+    def generate_slug(self):
+        if self.name:
+            self.slug = slugify(self.name)
 
 class Order(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -71,8 +89,11 @@ class AddProduct(FlaskForm):
     price = IntegerField('Price')
     stock = IntegerField('Stock')
     description = CKEditorField('Description')
+    slug = StringField('Slug')
     image = FileField('Image', validators=[FileAllowed(IMAGES, 'Only images are accepted.')])
     image2 = FileField('Image', validators=[FileAllowed(IMAGES, 'Only images are accepted.')])
+    image3 = FileField('Image', validators=[FileAllowed(IMAGES, 'Only images are accepted.')])
+    image4 = FileField('Image', validators=[FileAllowed(IMAGES, 'Only images are accepted.')])
 
 
 class AddToCart(FlaskForm):
@@ -128,6 +149,7 @@ class Slider(db.Model):
     pagetitle = db.Column(db.String(100))
     description = db.Column(db.String(100))
     image = db.Column(db.String(100))
+
 class AddSlider(FlaskForm):
     pagetitle = StringField('Заголовок')
     description = CKEditorField('Описание')
@@ -203,7 +225,6 @@ def quick_add():
         session['cart'] = []
     session['cart'].append({'id': id, 'quantity': 1})
     session.modified = True
-    print(session['cart'])
     count = 0
     for i in session['cart']:
         count += 1
@@ -370,12 +391,23 @@ def edit_product(id):
             image_url_main = photos.save(request.files["image"])
             product.image = 'images/' + image_url_main
 
-        if request.files['image_t'].filename == '':
+        if request.files['image2'].filename == '':
             pass
         else:
-            image_url_t = photos.save(request.files["image_t"])
-            product.image_t = 'images/' + image_url_t
+            image_url2 = photos.save(request.files["image2"])
+            product.image2 = 'images/' + image_url2
 
+        if request.files['image3'].filename == '':
+            pass
+        else:
+            image_url3 = photos.save(request.files["image3"])
+            product.image3 = 'images/' + image_url3
+
+        if request.files['image4'].filename == '':
+            pass
+        else:
+            image_url4 = photos.save(request.files["image4"])
+            product.image4 = 'images/' + image_url4
 
         try:
             db.session.commit()
@@ -398,16 +430,35 @@ def remove_order(id):
 def add():
     form = AddProduct()
     if form.validate_on_submit():
-        image_url_main = photos.save(form.image.data)
-        image_url = 'images/' + image_url_main
+        if form.image.data is None:
+            image_url = ''
+        else:
+            image_url_main = photos.save(form.image.data)
+            image_url = 'images/' + image_url_main
 
-        image_url_2 = photos.save(form.image2.data)
-        image_url2 = 'images/' + image_url_2
+        if form.image2.data is None:
+            image_url2 = ''
+        else:
+            image_url_2 = photos.save(form.image2.data)
+            image_url2 = 'images/' + image_url_2
 
-        new_product = Product(name=form.name.data, price=form.price.data, stock=form.stock.data, description=form.description.data, image=image_url, image2=image_url2)
+        if form.image3.data is None:
+            image_url3 = ''
+        else:
+            image_url_3 = photos.save(form.image3.data)
+            image_url3 = 'images/' + image_url_3
+
+        if form.image4.data is None:
+            image_url4 = ''
+        else:
+            image_url_4 = photos.save(form.image4.data)
+            image_url4 = 'images/' + image_url_4
+
+        new_product = Product(name=form.name.data, slug=form.slug.data, price=form.price.data, stock=form.stock.data, description=form.description.data, image=image_url, image2=image_url2, image3=image_url3, image4=image_url4)
         db.session.add(new_product)
         db.session.commit()
         return redirect(url_for('list_products'))
+
     return render_template('admin/add-product.html', admin=True, form=form)
 
 @app.route('/admin/order/<order_id>', methods=['GET', 'POST'])

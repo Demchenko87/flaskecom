@@ -17,6 +17,10 @@
                     <input type="text" name="name" class="form-control" value="{{ product.name }}" >
                 </div>
             <div class="form-group">
+                    <label>Slug</label>
+                    <input type="text" name="slug" class="form-control" value="{{ product.slug }}" >
+                </div>
+            <div class="form-group">
                 <label>Цена товара</label>
                     <input type="number" name="price" class="form-control" value="{{ product.price }}" >
                 </div>
@@ -36,10 +40,22 @@
                  <img src="{{ url_for('static', filename=product.image) }}" alt="картинка товара" width="200" >
 
                 </div>
-<div class="form-group">
+            <div class="form-group">
                  <label>2 Картинка товара</label>
                    <input type="file" name="image2" class="form-control">
                  <img src="{{ url_for('static', filename=product.image2) }}" alt="картинка товара" width="200" >
+
+                </div>
+            <div class="form-group">
+                 <label>3 Картинка товара</label>
+                   <input type="file" name="image3" class="form-control">
+                 <img src="{{ url_for('static', filename=product.image3) }}" alt="картинка товара" width="200" >
+
+                </div>
+            <div class="form-group">
+                 <label>4 Картинка товара</label>
+                   <input type="file" name="image4" class="form-control">
+                 <img src="{{ url_for('static', filename=product.image4) }}" alt="картинка товара" width="200" >
 
                 </div>
 
