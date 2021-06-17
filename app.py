@@ -151,10 +151,17 @@ def handle_cart():
 @app.route('/')
 def index():
     # session['cart'] = []
+
     slider = Slider.query.all()
-    products = Product.query.all()
     count_cart = check_count()
-    return render_template('index.html', products=products, count_cart=count_cart, slider=slider)
+    products = Product.query.order_by(Product.name.desc())
+    page = request.args.get('page')
+    if page and page.isdigit():
+        page = int(page)
+    else:
+        page = 1
+    pages = products.paginate(page=page, per_page=2)
+    return render_template('index.html', pages=pages, products=products, count_cart=count_cart, slider=slider)
 
 @app.errorhandler(404)
 def page_not_found(e):

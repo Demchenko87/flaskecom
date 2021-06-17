@@ -169,6 +169,8 @@ table a:not(.btn), .table a:not(.btn) {
 .dataTables_filter {width: 500px;
 padding-right: 20px;}
 .paginate_button {padding: 0!important;}
+table.dataTable {
+    width: 99% !important;}
 .dataTables_paginate {width: 320px; height: 60px;}
 .pagination { margin: 0px 15px 0 0; }
 .dataTables_info {margin-left: 10px;}
@@ -181,6 +183,7 @@ table a:not(.btn), .table a:not(.btn) {
     text-decoration: none;
     color: #333;
 }
+.active {border:none!important;}
 .pagination > .disabled > a {
     color: #ecf0f1;
     background-color: gray;
@@ -194,14 +197,55 @@ table a:not(.btn), .table a:not(.btn) {
     cursor: not-allowed;
 }
 .pagination > .active > a {
-    background-color: brown;
-    border-color: brown;
+    color: #fff;
+    background-color: #007bff;
+    border-color: #007bff;
 
 }
 .pagination > .active > a:hover {
-    background-color: brown;
-    border-color: brown;
+    color: #fff;
+    background-color: #007bff;
+    border-color: #007bff;
 
+}
+.page-link {
+    position: relative;
+    display: block;
+    padding: .5rem .75rem;
+    margin-left: -1px;
+    line-height: 1.25;
+    color: #007bff;
+    background-color: #fff;
+    border: 1px solid #dee2e6;
+}
+.page-link:hover {
+    color: #0056b3;
+    text-decoration: none;
+    background-color: #e9ecef;
+    border-color: #dee2e6;
+}
+.page-item.disabled .page-link {
+    color: #6c757d;
+    pointer-events: none;
+    cursor: auto;
+    background-color: #fff;
+    border-color: #dee2e6;
+}
+.pagination > li > a {
+    position: relative;
+    display: block;
+
+    margin-left: -1px;
+
+    color: #007bff;
+    background-color: #fff;
+    border: 1px solid #dee2e6;
+}
+.pagination > li > a:hover{
+    color: #0056b3;
+    text-decoration: none;
+    background-color: #e9ecef;
+    border-color: #dee2e6;
 }
 
 .carousel {
