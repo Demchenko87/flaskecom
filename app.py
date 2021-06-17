@@ -33,6 +33,7 @@ class Product(db.Model):
     stock = db.Column(db.Integer)
     description = db.Column(db.String(500))
     image = db.Column(db.String(100))
+    image2 = db.Column(db.String(100), nullable=True)
     order = db.relationship('Order_Item', backref='product', lazy=True)
 
 class Order(db.Model):
@@ -71,6 +72,8 @@ class AddProduct(FlaskForm):
     stock = IntegerField('Stock')
     description = CKEditorField('Description')
     image = FileField('Image', validators=[FileAllowed(IMAGES, 'Only images are accepted.')])
+    image2 = FileField('Image', validators=[FileAllowed(IMAGES, 'Only images are accepted.')])
+
 
 class AddToCart(FlaskForm):
     quantity = IntegerField('Quantity')
@@ -350,7 +353,7 @@ def remove_product(id):
     event = Product.query.filter_by(id=id).first()
     db.session.delete(event)
     db.session.commit()
-    return redirect(url_for('admin'))
+    return redirect(url_for('list_products'))
 
 @app.route('/admin/edit/<int:id>', methods=['POST', 'GET'])
 @login_required
@@ -366,6 +369,14 @@ def edit_product(id):
         else:
             image_url_main = photos.save(request.files["image"])
             product.image = 'images/' + image_url_main
+
+        if request.files['image_t'].filename == '':
+            pass
+        else:
+            image_url_t = photos.save(request.files["image_t"])
+            product.image_t = 'images/' + image_url_t
+
+
         try:
             db.session.commit()
             return redirect('/admin/list-products')
@@ -389,7 +400,11 @@ def add():
     if form.validate_on_submit():
         image_url_main = photos.save(form.image.data)
         image_url = 'images/' + image_url_main
-        new_product = Product(name=form.name.data, price=form.price.data, stock=form.stock.data, description=form.description.data, image=image_url)
+
+        image_url_2 = photos.save(form.image2.data)
+        image_url2 = 'images/' + image_url_2
+
+        new_product = Product(name=form.name.data, price=form.price.data, stock=form.stock.data, description=form.description.data, image=image_url, image2=image_url2)
         db.session.add(new_product)
         db.session.commit()
         return redirect(url_for('list_products'))
