@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+<h1>ЗАГРУЗИТЬ</h1>
+<form method="POST" action="{{ url_for('import_file') }}" enctype="multipart/form-data">{{ form.csrf_token }}
+    {{ form.csrf_token }}
+    <select name="choce" id="choce" >
+        <option value="0">ПЕРЕЗАПИСАТЬ</option>
+        <option value="1">ДОБАВИТЬ</option>
+    </select>
+   {{ form.file(class='form-control') }}
+<button type="submit">UPLOAD</button>
+</form>
+</body>
+</html>
