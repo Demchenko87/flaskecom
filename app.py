@@ -1,4 +1,5 @@
 import re
+import os
 
 from flask import Flask, render_template, redirect, url_for, session, request, jsonify
 from flask_security import UserMixin, RoleMixin, SQLAlchemyUserDatastore, Security, login_required
@@ -7,8 +8,9 @@ from flask_migrate import Migrate
 from flask_uploads import UploadSet, configure_uploads, IMAGES
 from flask_wtf import FlaskForm
 from flask_ckeditor import CKEditor, CKEditorField
-from wtforms import StringField, IntegerField, TextAreaField, HiddenField, SelectField
+from wtforms import StringField, IntegerField, validators, TextAreaField, HiddenField, SelectField
 from flask_wtf.file import FileField, FileAllowed, FileRequired
+import csv
 import random
 import email_validator
 app = Flask(__name__)
@@ -23,15 +25,31 @@ app.config['SECRET_KEY'] = 'mysecret'
 # -- security
 app.config['SECURITY_PASSWORD_SALT'] = 'salt'
 app.config['SECURITY_PASSWORD_HASH'] = 'sha512_crypt'
+
+
 configure_uploads(app, photos)
+
+csv_file = UploadSet('files', ('csv',))
+app.config['UPLOADED_FILES_DEST'] = 'static/files'
+configure_uploads(app, csv_file)
 
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
 
+class Upload(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    file = db.Column(db.String(100), nullable=True)
+
+class AddUpload(FlaskForm):
+    name = name = StringField('Name')
+    file = FileField('File', [validators.required()])
+
+
 def slugify(s):
     pattern = r'[^\w+]'
     return re.sub(pattern, '-', s)
+
 
 class Product(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -286,11 +304,16 @@ def admin():
 @app.route('/statistic')
 @login_required
 def statistic():
-    orders_done = Order.query.filter_by(status='Выполнен').count()
-    orders_new = Order.query.filter_by(status='Новый заказ').count()
-    orders_pay = Order.query.filter_by(status='Оплачен').count()
-    orders_send = Order.query.filter_by(status='Отправлен').count()
-    orders_cancel = Order.query.filter_by(status='Отменен').count()
+    status1 = 'Выполнен'
+    status2 = 'Новый заказ'
+    status3 = 'Оплачен'
+    status4 = 'Отправлен'
+    status5 = 'Отменен'
+    orders_done = Order.query.filter_by(status=status1).count()
+    orders_new = Order.query.filter_by(status=status2).count()
+    orders_pay = Order.query.filter_by(status=status3).count()
+    orders_send = Order.query.filter_by(status=status4).count()
+    orders_cancel = Order.query.filter_by(status=status5).count()
 
     return render_template('admin/statistic.html', admin=True, orders_done=orders_done, orders_new=orders_new, orders_pay=orders_pay, orders_send=orders_send, orders_cancel=orders_cancel)
 
@@ -498,6 +521,57 @@ def check_count():
     else:
         count_cart = 0
     return count_cart
+
+
+@app.route('/admin/importexport')
+@login_required
+def impexp():
+    return render_template('admin/importexport.html', admin=True)
+
+@app.route('/export', methods=['GET', 'POST'])
+def export_file():
+    file_name = 'base.csv'
+    path_file = app.config['UPLOADED_FILES_DEST'] + '/' + file_name
+    with open(path_file, 'w', newline='') as csvfile:
+        writer = csv.writer(csvfile, delimiter=";")
+        post = Product.query.all()
+        writer.writerow(["name", "price", "stock", "description", "slug", "image", "image2", "image3", "image4"])
+        for i in post:
+            writer.writerow([i.name, i.price, i.stock, i.description, i.slug, i.image, i.image2, i.image3, i.image4])
+    return render_template('admin/export.html', path_file=path_file)
+
+@app.route('/import', methods=['GET', 'POST'])
+def import_file():
+    form = AddUpload()
+    if request.method == 'POST':
+
+        if request.form.get('choce') == '0':
+            if form.validate_on_submit():
+                file_url = csv_file.save(form.file.data)
+                path_file = app.config['UPLOADED_FILES_DEST'] + '/' + file_url
+                delete_model = Product.query.delete()
+                with open(path_file, newline='') as csvfile:
+                    reader = csv.DictReader(csvfile, delimiter=";")
+                    for row in reader:
+                        post = Product(name=row['name'], price=row['price'], stock=row['stock'], description=row['description'], slug=row['slug'], image=row['image'], image2=row['image2'], image3=row['image3'], image4=row['image4'])
+                        db.session.add(post)
+                        db.session.commit()
+                    os.remove(path_file)
+                return redirect(url_for('index'))
+        else:
+                if form.validate_on_submit():
+                    file_url = csv_file.save(form.file.data)
+                    path_file = app.config['UPLOADED_FILES_DEST'] + '/' + file_url
+                    with open(path_file, newline='') as csvfile:
+                        reader = csv.DictReader(csvfile, delimiter=";")
+                        for row in reader:
+                            post = Product(name=row['name'], price=row['price'], stock=row['stock'], description=row['description'], slug=row['slug'], image=row['image'], image2=row['image2'], image3=row['image3'], image4=row['image4'])
+                            db.session.add(post)
+                            db.session.commit()
+                        os.remove(path_file)
+                    return redirect(url_for('index'))
+    return render_template('admin/import.html', form=form)
+
 
 if __name__ == '__main__':
     app.run()

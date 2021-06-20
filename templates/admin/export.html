@@ -1,14 +1,10 @@
-<!doctype html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
-</head>
-<body>
-<h1>EXPORT</h1>
-<a href="{{ path_file }}">DOWNLOAD</a>
-</body>
-</html>
+{% extends "base.html" %}
+{% block title %}Выгрузить прайс{% endblock %}
+{% block body %}
+<div class="row pad">
+	<div class="col-lg-12 col-xs-offset-2">
+        <h1>Выгрузить прайс</h1>
+<a href="{{ path_file }}" class="btn btn-success">DOWNLOAD</a>
+    </div>
+</div>
+{% endblock %}
