@@ -1,7 +1,8 @@
 {% extends "base.html" %}
 
 {% block title %}Страница товара | {{ product.name }}{% endblock %}
-
+{% block keyw %}{{ product.keyw }}{% endblock %}
+{% block desc %}{{ product.desc }}{% endblock %}
 {% block body %}
 <div class="row">
 	<div class="col-lg-12">

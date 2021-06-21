@@ -4,7 +4,10 @@
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+
         <title>{% block title %}{% endblock %}</title>
+        <meta name="keywords" content="{% block keyw %}Сюда ключевые слова{% endblock %}" />
+        <meta name="description" content="{% block desc %}Сюда описание{% endblock %}" />
         <link href="{{ url_for('static', filename='imgs/fav.png') }}" rel="shortcut icon" type="image/x-icon" />
         <!-- Bootstrap CSS -->
         <link rel="stylesheet" href="{{ url_for('static', filename='bs/css/flatly.min.css') }}" />

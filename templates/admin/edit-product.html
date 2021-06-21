@@ -11,14 +11,27 @@
 
 <div class="row">
 	<div class="col-lg-10 col-lg-offset-1">
-		<form method="POST" enctype="multipart/form-data">
+<div role="tabpanel">
+			<!-- Nav tabs -->
+			<ul class="nav nav-tabs" role="tablist">
+				<li role="presentation" class="active">
+					<a href="#shipping" aria-controls="shipping" role="tab" data-toggle="tab">Общая информация</a>
+				</li>
+				<li role="presentation">
+					<a href="#details" aria-controls="details" role="tab" data-toggle="tab">Для SEO</a>
+				</li>
+			</ul>
+
+			<!-- Tab panes -->
+     <form method="POST" enctype="multipart/form-data">
+			<div class="tab-content">
+
+				<div role="tabpanel" class="tab-pane active" id="shipping">
+
+
                 <div class="form-group">
                     <label>Название товара</label>
                     <input type="text" name="name" class="form-control" value="{{ product.name }}" >
-                </div>
-            <div class="form-group">
-                    <label>Slug</label>
-                    <input type="text" name="slug" class="form-control" value="{{ product.slug }}" >
                 </div>
             <div class="form-group">
                 <label>Цена товара</label>
@@ -63,9 +76,34 @@
 
 
 
-                <button type="submit" class="btn btn-success">Сохранить</button>
-            </form>
-	</div>
+
+
+				</div>
+				<div role="tabpanel" class="tab-pane" id="details">
+
+                        <div class="form-group">
+                             <label>Meta title</label>
+                            <input type="text"  name="title" class="form-control" value="{{ product.title }}">
+                        </div>
+                        <div class="form-group">
+                             <label>Key words</label>
+                           <input type="text" name="keyw" class="form-control" value="{{ product.keyw }}" >
+                        </div>
+                        <div class="form-group">
+                             <label>Description</label>
+                            <input type="text" name="desc" class="form-control" value="{{ product.desc }}" >
+                        </div>
+
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-success">Сохранить</button>
+                        </div>
+
+
+				</div>
+
+			</div></form>
+</div>
+    </div>
 </div>
     {{ ckeditor.load() }}
 {% endblock %}

@@ -46,31 +46,35 @@ class AddUpload(FlaskForm):
     file = FileField('File', [validators.required()])
 
 
-def slugify(s):
-    pattern = r'[^\w+]'
-    return re.sub(pattern, '-', s)
+# def slugify(s):
+#     pattern = r'[^\w+]'
+#     return re.sub(pattern, '-', s)
 
 
 class Product(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(50), unique=True)
+    name = db.Column(db.String(50))
     price = db.Column(db.Integer)
     stock = db.Column(db.Integer)
-    slug = db.Column(db.String(140), unique=True)
+    # slug = db.Column(db.String(140), unique=True)
     description = db.Column(db.String(500))
     image = db.Column(db.String(100), nullable=True)
     image2 = db.Column(db.String(100), nullable=True)
     image3 = db.Column(db.String(100), nullable=True)
     image4 = db.Column(db.String(100), nullable=True)
     order = db.relationship('Order_Item', backref='product', lazy=True)
+    # ---- SEO ----
+    title = db.Column(db.String(50), nullable=True)
+    keyw = db.Column(db.String(150), nullable=True)
+    desc = db.Column(db.String(200), nullable=True)
 
-    def __init__(self, *args, **kwargs):
-        super(Product, self).__init__(*args, **kwargs)
-        self.generate_slug()
-
-    def generate_slug(self):
-        if self.name:
-            self.slug = slugify(self.name)
+    # def __init__(self, *args, **kwargs):
+    #     super(Product, self).__init__(*args, **kwargs)
+    #     self.generate_slug()
+    #
+    # def generate_slug(self):
+    #     if self.name:
+    #         self.slug = slugify(self.name)
 
 class Order(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -107,7 +111,10 @@ class AddProduct(FlaskForm):
     price = IntegerField('Price')
     stock = IntegerField('Stock')
     description = CKEditorField('Description')
-    slug = StringField('Slug')
+    title = StringField('Title')
+    keyw = StringField('Keyw')
+    desc = StringField('Desc')
+    # slug = StringField('Slug')
     image = FileField('Image', validators=[FileAllowed(IMAGES, 'Only images are accepted.')])
     image2 = FileField('Image', validators=[FileAllowed(IMAGES, 'Only images are accepted.')])
     image3 = FileField('Image', validators=[FileAllowed(IMAGES, 'Only images are accepted.')])
@@ -295,6 +302,7 @@ def checkout():
 @app.route('/admin')
 @login_required
 def admin():
+
     products = Product.query.all()
     products_in_stock = Product.query.filter(Product.stock > 0).count()
     orders = Order.query.all()
@@ -399,46 +407,7 @@ def remove_product(id):
     db.session.commit()
     return redirect(url_for('list_products'))
 
-@app.route('/admin/edit/<int:id>', methods=['POST', 'GET'])
-@login_required
-def edit_product(id):
-    product = Product.query.get(id)
-    if request.method == 'POST':
-        product.name = request.form['name']
-        product.price = request.form['price']
-        product.stock = request.form['stock']
-        product.description = request.form['description']
-        if request.files['image'].filename == '':
-            pass
-        else:
-            image_url_main = photos.save(request.files["image"])
-            product.image = 'images/' + image_url_main
 
-        if request.files['image2'].filename == '':
-            pass
-        else:
-            image_url2 = photos.save(request.files["image2"])
-            product.image2 = 'images/' + image_url2
-
-        if request.files['image3'].filename == '':
-            pass
-        else:
-            image_url3 = photos.save(request.files["image3"])
-            product.image3 = 'images/' + image_url3
-
-        if request.files['image4'].filename == '':
-            pass
-        else:
-            image_url4 = photos.save(request.files["image4"])
-            product.image4 = 'images/' + image_url4
-
-        try:
-            db.session.commit()
-            return redirect('/admin/list-products')
-        except:
-            return "При редактировании произошла ошибка"
-    else:
-        return render_template('admin/edit-product.html', product=product, admin=True)
 
 @app.route('/admin/delete_order/<int:id>', methods=['GET'])
 @login_required
@@ -477,12 +446,57 @@ def add():
             image_url_4 = photos.save(form.image4.data)
             image_url4 = 'images/' + image_url_4
 
-        new_product = Product(name=form.name.data, slug=form.slug.data, price=form.price.data, stock=form.stock.data, description=form.description.data, image=image_url, image2=image_url2, image3=image_url3, image4=image_url4)
+        new_product = Product(name=form.name.data, price=form.price.data, stock=form.stock.data, description=form.description.data, title=form.title.data, keyw=form.keyw.data, desc=form.desc.data, image=image_url, image2=image_url2, image3=image_url3, image4=image_url4)
         db.session.add(new_product)
         db.session.commit()
         return redirect(url_for('list_products'))
 
     return render_template('admin/add-product.html', admin=True, form=form)
+
+@app.route('/admin/edit/<int:id>', methods=['POST', 'GET'])
+@login_required
+def edit_product(id):
+    product = Product.query.get(id)
+    if request.method == 'POST':
+        product.name = request.form['name']
+        product.price = request.form['price']
+        product.stock = request.form['stock']
+        product.description = request.form['description']
+        product.title = request.form['title']
+        product.keyw = request.form['keyw']
+        product.desc = request.form['desc']
+        if request.files['image'].filename == '':
+            pass
+        else:
+            image_url_main = photos.save(request.files["image"])
+            product.image = 'images/' + image_url_main
+
+        if request.files['image2'].filename == '':
+            pass
+        else:
+            image_url2 = photos.save(request.files["image2"])
+            product.image2 = 'images/' + image_url2
+
+        if request.files['image3'].filename == '':
+            pass
+        else:
+            image_url3 = photos.save(request.files["image3"])
+            product.image3 = 'images/' + image_url3
+
+        if request.files['image4'].filename == '':
+            pass
+        else:
+            image_url4 = photos.save(request.files["image4"])
+            product.image4 = 'images/' + image_url4
+
+        try:
+            db.session.commit()
+            return redirect('/admin/list-products')
+        except:
+            return "При редактировании произошла ошибка"
+    else:
+        return render_template('admin/edit-product.html', product=product, admin=True)
+
 
 @app.route('/admin/order/<order_id>', methods=['GET', 'POST'])
 @login_required
@@ -535,10 +549,10 @@ def export_file():
     with open(path_file, 'w', newline='') as csvfile:
         writer = csv.writer(csvfile, delimiter=";")
         post = Product.query.all()
-        writer.writerow(["name", "price", "stock", "description", "slug", "image", "image2", "image3", "image4"])
+        writer.writerow(["name", "price", "stock", "description", "image", "image2", "image3", "image4"])
         for i in post:
-            writer.writerow([i.name, i.price, i.stock, i.description, i.slug, i.image, i.image2, i.image3, i.image4])
-    return render_template('admin/export.html', path_file=path_file)
+            writer.writerow([i.name, i.price, i.stock, i.description, i.image, i.image2, i.image3, i.image4])
+    return render_template('admin/export.html', path_file=path_file, admin=True)
 
 @app.route('/import', methods=['GET', 'POST'])
 def import_file():
@@ -553,7 +567,7 @@ def import_file():
                 with open(path_file, newline='') as csvfile:
                     reader = csv.DictReader(csvfile, delimiter=";")
                     for row in reader:
-                        post = Product(name=row['name'], price=row['price'], stock=row['stock'], description=row['description'], slug=row['slug'], image=row['image'], image2=row['image2'], image3=row['image3'], image4=row['image4'])
+                        post = Product(name=row['name'], price=row['price'], stock=row['stock'], description=row['description'], image=row['image'], image2=row['image2'], image3=row['image3'], image4=row['image4'])
                         db.session.add(post)
                         db.session.commit()
                     os.remove(path_file)
@@ -565,12 +579,12 @@ def import_file():
                     with open(path_file, newline='') as csvfile:
                         reader = csv.DictReader(csvfile, delimiter=";")
                         for row in reader:
-                            post = Product(name=row['name'], price=row['price'], stock=row['stock'], description=row['description'], slug=row['slug'], image=row['image'], image2=row['image2'], image3=row['image3'], image4=row['image4'])
+                            post = Product(name=row['name'], price=row['price'], stock=row['stock'], description=row['description'], image=row['image'], image2=row['image2'], image3=row['image3'], image4=row['image4'])
                             db.session.add(post)
                             db.session.commit()
                         os.remove(path_file)
                     return redirect(url_for('index'))
-    return render_template('admin/import.html', form=form)
+    return render_template('admin/import.html', form=form, admin=True)
 
 
 if __name__ == '__main__':
