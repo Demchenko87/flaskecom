@@ -1,4 +1,4 @@
-import re
+# import re
 import os
 
 from flask import Flask, render_template, redirect, url_for, session, request, jsonify
@@ -187,6 +187,7 @@ def handle_cart():
     shipping = ship_price.price
     index = 0
     quatity_total = 0
+
     for item in session['cart']:
         product = Product.query.filter_by(id=item['id']).first()
         quantity = int(item['quantity'])
@@ -200,8 +201,9 @@ def handle_cart():
 
 @app.route('/')
 def index():
-    # session['cart'] = []
 
+    #session['cart'] = []
+    page_count = 3
     slider = Slider.query.all()
     count_cart = check_count()
     products = Product.query.order_by(Product.name.desc())
@@ -210,7 +212,7 @@ def index():
         page = int(page)
     else:
         page = 1
-    pages = products.paginate(page=page, per_page=2)
+    pages = products.paginate(page=page, per_page=page_count)
     return render_template('index.html', pages=pages, products=products, count_cart=count_cart, slider=slider)
 
 @app.errorhandler(404)
@@ -245,15 +247,23 @@ def product(id):
 #----json add
 @app.route('/quick-add-json', methods=['POST'])
 def quick_add():
+    count = 0
     id = request.form['id_tov']
     if 'cart' not in session:
         session['cart'] = []
-    session['cart'].append({'id': id, 'quantity': 1})
-    session.modified = True
-    count = 0
+
+    matching = [d for d in session['cart'] if d['id'] == id]
+    if matching:
+        matching[0]['quantity'] += 1
+        session.modified = True
+    else:
+        session['cart'].append({'id': id, 'quantity': 1})
+        session.modified = True
+
     for i in session['cart']:
-        count += 1
+        count += i['quantity']
     return jsonify({'id': id, 'count': count})
+
 
 
 @app.route('/add-to-cart', methods=['POST'])
@@ -261,9 +271,18 @@ def add_to_cart():
     if 'cart' not in session:
         session['cart'] = []
     form = AddToCart()
+    count = 0
     if form.validate_on_submit():
-        session['cart'].append({'id': form.id.data, 'quantity': form.quantity.data})
-        session.modified = True
+
+        matching = [d for d in session['cart'] if d['id'] == form.id.data]
+        if matching:
+            matching[0]['quantity'] += form.quantity.data
+            session.modified = True
+        else:
+            session['cart'].append({'id': form.id.data, 'quantity': form.quantity.data})
+            session.modified = True
+        for i in session['cart']:
+            count += i['quantity']
     return redirect(request.referrer)
 
 @app.route('/cart')
@@ -302,7 +321,6 @@ def checkout():
 @app.route('/admin')
 @login_required
 def admin():
-
     products = Product.query.all()
     products_in_stock = Product.query.filter(Product.stock > 0).count()
     orders = Order.query.all()
