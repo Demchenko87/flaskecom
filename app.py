@@ -37,6 +37,46 @@ db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
 
+class Gencode(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    count = db.Column(db.Integer)
+    group = db.Column(db.String(50), nullable=True)
+    name = db.Column(db.String(50), nullable=True)
+    count_used = db.Column(db.Integer)
+    count_number = db.Column(db.Integer)
+    proccur = db.Column(db.String(50), nullable=True)
+    count_sibol = db.Column(db.Integer)
+    datedown = db.Column(db.String(50), nullable=True)
+    code = db.Column(db.String(50), nullable=True)
+
+class AddGencode(FlaskForm):
+    count = StringField('Count')
+    group = StringField('Group')
+    name = StringField('Name')
+    count_used = StringField('Count_used')
+    count_number = StringField('Count_number')
+    proccur = SelectField('Proccur', choices=[('%', '%'), ('UAH', 'UAH')])
+    count_sibol = StringField('Count_sibol')
+    datedown = StringField('Datedown')
+
+
+class Group(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50), nullable=True)
+    comment = db.Column(db.String(200), nullable=True)
+    sum_count = db.Column(db.Integer)
+    active = db.Column(db.Integer)
+    used = db.Column(db.Integer)
+
+class AddGroup(FlaskForm):
+    name = StringField('Name')
+    comment = StringField('Comment')
+    sum_count = StringField('sum_count')
+    active = StringField('active')
+    used = StringField('used')
+
+
+
 class Upload(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     file = db.Column(db.String(100), nullable=True)
@@ -188,6 +228,23 @@ def handle_cart():
     index = 0
     quatity_total = 0
 
+
+
+    # promocode = 0
+    # promo = ''
+    # proc = ''
+    # if request.method == 'POST':
+    #     promo = request.form['promocode']
+    # gcode = Gencode.query.all()
+    # for i in gcode:
+    #     if i.code == promo:
+    #         if i.proccur == '%':
+    #             proc = '%'
+    #         promocode = i.count_number
+
+
+
+
     for item in session['cart']:
         product = Product.query.filter_by(id=item['id']).first()
         quantity = int(item['quantity'])
@@ -196,6 +253,13 @@ def handle_cart():
         grand_total += total
         products.append({'id': product.id, 'name': product.name, 'price':  product.price, 'image': product.image, 'quantity': quantity, 'total': total, 'index': index})
         index += 1
+
+    # if proc == '%':
+    #     x = promocode / 100
+    #     y = (grand_total + shipping) * x
+    #     grand_total_plus_shipping = (grand_total + shipping) - y
+    # else:
+    #     grand_total_plus_shipping = grand_total + shipping - promocode
     grand_total_plus_shipping = grand_total + shipping
     return products, grand_total, grand_total_plus_shipping, shipping, quatity_total
 
@@ -265,7 +329,6 @@ def quick_add():
     return jsonify({'id': id, 'count': count})
 
 
-
 @app.route('/add-to-cart', methods=['POST'])
 def add_to_cart():
     if 'cart' not in session:
@@ -285,11 +348,18 @@ def add_to_cart():
             count += i['quantity']
     return redirect(request.referrer)
 
-@app.route('/cart')
+@app.route('/cart', methods=['GET', 'POST'])
 def cart():
+
     count_cart = check_count()
     products, grand_total, grand_total_plus_shipping, shipping, quatity_total = handle_cart()
-    return render_template('cart.html', count_cart=count_cart, products=products, shipping=shipping, grand_total=grand_total, grand_total_plus_shipping=grand_total_plus_shipping, quatity_total=quatity_total)
+    return render_template('cart.html',
+                           count_cart=count_cart,
+                           products=products,
+                           shipping=shipping,
+                           grand_total=grand_total,
+                           grand_total_plus_shipping=grand_total_plus_shipping,
+                           quatity_total=quatity_total)
 
 @app.route('/remove-from-cart/<index>')
 def remove_form_cart(index):
@@ -300,8 +370,9 @@ def remove_form_cart(index):
 @app.route('/checkout', methods=['GET', 'POST'])
 def checkout():
     form = Checkout()
-    products, grand_total, grand_total_plus_shipping, shipping, quatity_total = handle_cart()
     count_cart = check_count()
+    products, grand_total, grand_total_plus_shipping, shipping, quatity_total = handle_cart()
+
     if form.validate_on_submit():
         order = Order()
         form.populate_obj(order)
@@ -316,7 +387,15 @@ def checkout():
         session['cart'] = []
         session.modified = True
         return redirect(url_for('index'))
-    return render_template('checkout.html', form=form, products=products, shipping=shipping, grand_total=grand_total, grand_total_plus_shipping=grand_total_plus_shipping, count_cart=count_cart, quatity_total=quatity_total)
+
+    return render_template('checkout.html',
+                           form=form,
+                           products=products,
+                           shipping=shipping,
+                           grand_total=grand_total,
+                           grand_total_plus_shipping=grand_total_plus_shipping,
+                           count_cart=count_cart,
+                           quatity_total=quatity_total)
 
 @app.route('/admin')
 @login_required
@@ -604,6 +683,72 @@ def import_file():
                     return redirect(url_for('index'))
     return render_template('admin/import.html', form=form, admin=True)
 
+@app.route('/gcode')
+def gcode():
+    generate = Gencode.query.all()
+    group = Group.query.all()
+    return render_template('gcode/index.html', generate=generate, group=group, admin=True)
+
+@app.route('/add-group', methods=['GET', 'POST'])
+def add_group():
+    form = AddGroup()
+    if form.validate_on_submit():
+        group = Group(name=form.name.data, comment=form.comment.data, sum_count=form.sum_count.data, active=form.active.data, used=form.used.data)
+        db.session.add(group)
+        db.session.commit()
+        return redirect(url_for('gcode'))
+    return render_template('gcode/add-group.html', form=form, admin=True)
+
+@app.route('/group/<int:id>', methods=['GET'])
+def delete_group(id):
+    group = Group.query.filter_by(id=id).first()
+    db.session.delete(group)
+    db.session.commit()
+    return redirect(request.referrer)
+
+@app.route('/add-generate', methods=['GET', 'POST'])
+def add_generate():
+    form = AddGencode()
+    group = Group.query.all()
+    if form.validate_on_submit():
+
+        i = int(form.count.data)
+        x = int(form.count_used.data)
+        y = i*x
+        for x in range(0, i):
+            length = int(form.count_sibol.data)
+            passwd = list('1234567890abcdefghigklmnopqrstuvyxwz')
+            random.shuffle(passwd)
+            passwd = ''.join([random.choice(passwd) for x in range(length)])
+            generate = Gencode(count=1,
+                                   group=form.group.data,
+                                   name=form.name.data,
+                                   count_used=form.count_used.data,
+                                   count_number=form.count_number.data,
+                                   proccur=form.proccur.data,
+                                   count_sibol=form.count_sibol.data,
+                                   datedown=form.datedown.data,
+                                   code=passwd)
+
+            db.session.add(generate)
+        group2 = Group.query.filter_by(name=form.group.data).first()
+        group2.sum_count += y
+        db.session.commit()
+        return redirect(url_for('gcode'))
+    return render_template('gcode/add-generate.html', form=form, group=group, admin=True)
+
+@app.route('/generate/<int:id>', methods=['GET'])
+def delete_code(id):
+    code = Gencode.query.filter_by(id=id).first()
+    x = code.count
+    y = code.count_used
+    z = x * y
+    group2 = Group.query.filter_by(name=code.group).first()
+    group2.sum_count -= z
+
+    db.session.delete(code)
+    db.session.commit()
+    return redirect(request.referrer)
 
 if __name__ == '__main__':
     app.run()
